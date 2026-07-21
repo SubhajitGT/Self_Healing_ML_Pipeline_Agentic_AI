@@ -1,0 +1,52 @@
+SelfHealingAgenticAI/
+
+│── app.py
+│── config.py
+│── requirements.txt
+│── README.md
+
+├── data/
+│      generator.py
+│      drift_injector.py
+│
+├── tools/
+│      generate_sample_data.py
+│
+├── database/
+│      sqlite_manager.py
+│
+├── ml/
+│      feature_engineering.py
+│      trainer.py
+│      predictor.py
+│      evaluator.py
+│
+├── monitoring/
+│      validator.py
+│      drift_detector.py
+│      performance_monitor.py
+│
+├── agents/
+│      gemini_client.py
+│      diagnostician.py
+│      planner.py
+│      executor.py
+│
+├── pipeline/
+│      orchestrator.py
+│
+├── ui/
+│      upload_page.py
+│      history_page.py
+│
+├── visualization/
+│      charts.py
+│
+├── models/
+│      saved_models/
+│
+├── sample_data/
+│
+├── logs/
+│
+└── pipeline.db
