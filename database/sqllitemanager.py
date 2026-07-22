@@ -568,43 +568,644 @@ class SQLiteManager:
         f"Pipeline Finished : {run_id}"
 
     )
+    # -------------------------------------------------------------------------
+
+    def insert_log(
+    self,
+    run_id: str,
+    step: str,
+    status: str,
+    message: str
+    ):
+        """
+        Insert workflow log.
+        """
+
+        timestamp = datetime.now().isoformat()
+
+        query = """
+        INSERT INTO workflow_logs
+        (
+            run_id,
+            timestamp,
+            step,
+            status,
+            message
+        )
+        VALUES
+        (
+            ?, ?, ?, ?, ?
+        )
+    """
+
+        self.execute(
+
+        query,
+
+        (
+
+            run_id,
+
+            timestamp,
+
+            step,
+
+            status,
+
+            message
+
+        )
+
+    )
+
+        logger.info(
+
+        f"[{step}] {status} : {message}"
+
+        )
+
+    # -------------------------------------------------------------------------
+
+    def insert_metrics(
+    self,
+    run_id: str,
+    mae: float,
+    rmse: float,
+    r2: float,
+    psi: float
+    ):
+        """
+        Store model evaluation metrics.
+        """
+
+        query = """
+        INSERT INTO metrics
+        (
+            run_id,
+            mae,
+            rmse,
+            r2,
+            psi
+        )
+        VALUES
+        (
+            ?, ?, ?, ?, ?
+        )
+    """
+
+        self.execute(
+
+        query,
+
+        (
+
+            run_id,
+
+            float(mae),
+
+            float(rmse),
+
+            float(r2),
+
+            float(psi)
+
+        )
+
+    )
+
+        logger.info(
+        f"Metrics inserted for {run_id}"
+        )
+
+    # -------------------------------------------------------------------------
+
+    def insert_diagnosis(
+    self,
+    run_id: str,
+    severity: str,
+    root_cause: str,
+    recommendation: str,
+    gemini_response: str
+    ):
+        """
+        Store Gemini diagnosis.
+        """
+
+        query = """
+        INSERT INTO diagnosis
+        (
+            run_id,
+            severity,
+            root_cause,
+            recommendation,
+            gemini_response
+        )
+        VALUES
+        (
+            ?, ?, ?, ?, ?
+        )
+    """
+
+        self.execute(
+
+        query,
+
+        (
+
+            run_id,
+
+            severity,
+
+            root_cause,
+
+            recommendation,
+
+            gemini_response
+
+        )
+
+        )
+
+        logger.info(
+        f"Diagnosis inserted for {run_id}"
+    )
+        
+    # -------------------------------------------------------------------------
+
+    def insert_recovery(
+    self,
+    run_id: str,
+    strategy: str,
+    status: str,
+    retraining_required: bool,
+    model_version: int
+):
+        """
+        Store recovery information.
+        """
+
+        query = """
+        INSERT INTO recovery
+        (
+            run_id,
+            strategy,
+            status,
+            retraining_required,
+            model_version
+        )
+        VALUES
+        (
+            ?, ?, ?, ?, ?
+        )
+    """
+
+        self.execute(
+
+        query,
+
+        (
+
+            run_id,
+
+            strategy,
+
+            status,
+
+            int(retraining_required),
+
+            model_version
+
+        )
+
+    )
+
+        logger.info(
+        f"Recovery inserted for {run_id}"
+    )
+        
+    # -------------------------------------------------------------------------
+
+    def register_model(
+    self,
+    model_version: int,
+    training_date: str,
+    dataset_name: str,
+    mae: float,
+    rmse: float,
+    r2: float,
+    model_path: str
+):
+        """
+        Register a trained model.
+        """
+
+        query = """
+        INSERT INTO model_registry
+        (
+            model_version,
+            training_date,
+            dataset_name,
+            mae,
+            rmse,
+            r2,
+            model_path
+        )
+        VALUES
+        (
+            ?, ?, ?, ?, ?, ?, ?
+        )
+    """
+
+        self.execute(
+
+        query,
+
+        (
+
+            model_version,
+
+            training_date,
+
+            dataset_name,
+
+            mae,
+
+            rmse,
+
+            r2,
+
+            model_path
+
+        )
+
+    )
+
+        logger.info(
+        f"Model Version {model_version} registered."
+    )
+        
+    # -------------------------------------------------------------------------
+
+    def get_pipeline_history(self):
+        """
+        Return all pipeline runs.
+        """
+
+        query = """
+
+        SELECT *
+
+        FROM pipeline_runs
+
+        ORDER BY start_time DESC
+
+        """
+
+        return self.fetch_all(query)
+    
+    # -------------------------------------------------------------------------
+
+    def get_pipeline_run(
+    self,
+    run_id: str
+):
+        """
+        Return one pipeline run.
+        """
+
+        query = """
+
+        SELECT *
+
+        FROM pipeline_runs
+
+        WHERE run_id = ?
+
+        """
+
+        return self.fetch_one(
+
+        query,
+
+        (
+
+            run_id,
+
+        )
+
+    )
+
+    # -------------------------------------------------------------------------
+
+    def get_metrics(
+    self,
+    run_id: str
+    ):
+        """
+        Return metrics for one run.
+        """
+
+        query = """
+
+        SELECT *
+
+        FROM metrics
+
+        WHERE run_id = ?
+
+        """
+
+        return self.fetch_one(
+
+        query,
+
+        (
+
+            run_id,
+
+        )
+
+    )
+
+    # -------------------------------------------------------------------------
+
+    def get_diagnosis(
+    self,
+    run_id: str
+):
+        """
+        Return diagnosis.
+        """
+
+        query = """
+
+        SELECT *
+
+        FROM diagnosis
+
+        WHERE run_id = ?
+
+        """
+
+        return self.fetch_one(
+
+        query,
+
+        (
+
+            run_id,
+
+        )
+
+    )
+
+    # -------------------------------------------------------------------------
+
+    def get_recovery(
+    self,
+    run_id: str
+    ):
+        """
+        Return recovery information.
+        """
+
+        query = """
+
+        SELECT *
+
+        FROM recovery
+
+        WHERE run_id = ?
+
+        """
+
+        return self.fetch_one(
+
+        query,
+
+        (
+
+            run_id,
+
+        )
+
+    )
+
+    # -------------------------------------------------------------------------
+
+    def get_logs(
+    self,
+    run_id: str
+):
+        """
+        Return workflow logs.
+        """
+
+        query = """
+
+        SELECT *
+
+        FROM workflow_logs
+
+        WHERE run_id = ?
+
+        ORDER BY timestamp
+
+        """
+
+        return self.fetch_all(
+
+        query,
+
+        (
+
+            run_id,
+
+        )
+
+    )
+    # -------------------------------------------------------------------------
+
+    def get_latest_model(self):
+        """
+        Return latest registered model.
+        """
+
+        query = """
+
+        SELECT *
+
+        FROM model_registry
+
+        ORDER BY model_version DESC
+
+        LIMIT 1
+
+        """
+
+        return self.fetch_one(query)
+    
+    # -------------------------------------------------------------------------
+
+    def delete_pipeline_run(
+    self,
+    run_id: str
+    ):
+        """
+        Delete an entire pipeline run.
+        """
+
+        tables = [
+
+        "workflow_logs",
+
+        "recovery",
+
+        "diagnosis",
+
+        "metrics",
+
+        "pipeline_runs"
+
+        ]
+
+        for table in tables:
+
+            query = f"""
+
+            DELETE FROM {table}
+
+            WHERE run_id = ?
+
+            """
+
+            self.execute(
+
+            query,
+
+            (
+
+                run_id,
+
+            )
+
+        )
+
+        logger.info(
+
+        f"Pipeline Run Deleted : {run_id}"
+
+    )
 # ==============================================================================
 # Standalone Testing
 # ==============================================================================
 
 if __name__ == "__main__":
 
+    from datetime import datetime
+
     database = SQLiteManager()
 
-    print()
+    run_id = database.start_pipeline_run(
 
-    print("=" * 60)
-
-    print("DATABASE INITIALIZED")
-
-    print("=" * 60)
-
-    tables = database.fetch_all(
-
-        """
-
-        SELECT name
-
-        FROM sqlite_master
-
-        WHERE type='table'
-
-        ORDER BY name
-
-        """
+        "sales_normal.xlsx"
 
     )
 
-    print("\nAvailable Tables\n")
+    database.insert_log(
 
-    for table in tables:
+        run_id,
 
-        print(f"• {table['name']}")
+        "Validation",
+
+        "Completed",
+
+        "Validation successful."
+
+    )
+
+    database.insert_metrics(
+
+        run_id,
+
+        11.8,
+
+        15.2,
+
+        0.95,
+
+        0.04
+
+    )
+
+    database.insert_diagnosis(
+
+        run_id,
+
+        "Low",
+
+        "No issue detected.",
+
+        "No action required.",
+
+        "Pipeline healthy."
+
+    )
+
+    database.insert_recovery(
+
+        run_id,
+
+        "None",
+
+        "Completed",
+
+        False,
+
+        1
+
+    )
+
+    database.register_model(
+
+        model_version=1,
+
+        training_date=datetime.now().isoformat(),
+
+        dataset_name="sales_normal.xlsx",
+
+        mae=11.8,
+
+        rmse=15.2,
+
+        r2=0.95,
+
+        model_path="models/saved_models/sales_forecaster.pkl"
+
+    )
+
+    database.finish_pipeline_run(run_id)
+
+    print("\nPipeline History\n")
+
+    history = database.get_pipeline_history()
+
+    for row in history:
+
+        print(dict(row))
+
+    print("\nLatest Model\n")
+
+    latest = database.get_latest_model()
+
+    print(dict(latest))
+
+    print("\nWorkflow Logs\n")
+
+    logs = database.get_logs(run_id)
+
+    for log in logs:
+
+        print(dict(log))
 
     database.close()
-
