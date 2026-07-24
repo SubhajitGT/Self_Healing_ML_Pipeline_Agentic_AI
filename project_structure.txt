@@ -20,6 +20,7 @@ SelfHealingAgenticAI/
 │      trainer.py
 │      predictor.py
 │      evaluator.py
+|      model_manager.py
 │
 ├── monitoring/
 │      validator.py
