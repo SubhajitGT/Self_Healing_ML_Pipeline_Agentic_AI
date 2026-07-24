@@ -1,53 +1,113 @@
-SelfHealingAgenticAI/
-
-│── app.py
-│── config.py
-│── requirements.txt
-│── README.md
-
-├── data/
-│      generator.py
-│      drift_injector.py
+Self_Healing_ML_Pipeline_Agentic_AI/
 │
-├── tools/
-│      generate_sample_data.py
+├── app.py                               # Streamlit Entry Point (Phase 7)
+├── config.py                            # Master Configuration
+├── requirements.txt
+├── README.md
+├── .env
+├── .gitignore
+│
+├── data/
+│   ├── __init__.py
+│   ├── generator.py                     ✅
+│   ├── drift_injector.py                ✅
+│   └── sample_data/
 │
 ├── database/
-│      sqlite_manager.py
+│   ├── __init__.py
+│   ├── sqlite_manager.py                ✅
+│   └── self_healing_pipeline.db
 │
 ├── ml/
-│      feature_engineering.py
-│      trainer.py
-│      predictor.py
-│      evaluator.py
-|      model_manager.py
+│   ├── __init__.py
+│   ├── feature_engineering.py           ✅
+│   ├── trainer.py                       ✅
+│   ├── predictor.py                     ✅
+│   ├── evaluator.py                     ✅
+│   └── model_manager.py                 ✅
 │
 ├── monitoring/
-│      validator.py
-│      drift_detector.py
-│      performance_monitor.py
+│   ├── __init__.py
+│   ├── validator.py                     ✅
+│   ├── drift_detector.py                ✅
+│   └── performance_monitor.py           ✅
 │
 ├── agents/
-│      gemini_client.py
-│      diagnostician.py
-│      planner.py
-│      executor.py
+│   ├── __init__.py
+│   ├── gemini_client.py                 ✅
+│   ├── prompt_builder.py                ✅
+│   ├── diagnosis_agent.py               ✅
+│   ├── response_parser.py               ✅
+│   └── orchestrator.py                  ✅
 │
-├── pipeline/
-│      orchestrator.py
-│
-├── ui/
-│      upload_page.py
-│      history_page.py
-│
-├── visualization/
-│      charts.py
+├── self_healing/
+│   ├── __init__.py
+│   ├── decision_engine.py               ⏳
+│   ├── retrainer.py                     ⏳
+│   ├── model_promoter.py                ⏳
+│   └── execution_history.py             ⏳
 │
 ├── models/
-│      saved_models/
+│   ├── saved_models/
+│   │   ├── sales_forecaster_v1.pkl
+│   │   ├── sales_forecaster_v2.pkl
+│   │   └── ...
+│   │
+│   └── metadata/
+│       ├── model_registry.json
+│       └── metrics_history.json
 │
-├── sample_data/
+├── tools/
+│   ├── generate_sample_data.py          ✅
+│   └── dataset_tools.py                 (Future)
+│
+├── output/
+│   ├── reports/
+│   ├── predictions/
+│   ├── monitoring/
+│   └── sample_datasets/
 │
 ├── logs/
+│   ├── application.log
+│   ├── monitoring.log
+│   ├── training.log
+│   └── ai.log
 │
-└── pipeline.db
+├── streamlit/
+│   ├── components/
+│   │   ├── metrics_card.py
+│   │   ├── drift_chart.py
+│   │   ├── health_gauge.py
+│   │   ├── model_card.py
+│   │   └── ai_report.py
+│   │
+│   ├── pages/
+│   │   ├── 1_Upload.py
+│   │   ├── 2_Validation.py
+│   │   ├── 3_Prediction.py
+│   │   ├── 4_Drift.py
+│   │   ├── 5_Performance.py
+│   │   ├── 6_AI_Diagnosis.py
+│   │   ├── 7_Self_Healing.py
+│   │   ├── 8_Model_History.py
+│   │   └── 9_Settings.py
+│   │
+│   └── assets/
+│       ├── logo.png
+│       └── styles.css
+│
+├── docs/
+│   ├── architecture.png
+│   ├── workflow.png
+│   ├── sequence_diagram.png
+│   └── screenshots/
+│
+└── tests/
+    ├── test_generator.py
+    ├── test_trainer.py
+    ├── test_predictor.py
+    ├── test_validator.py
+    ├── test_drift_detector.py
+    ├── test_performance_monitor.py
+    ├── test_gemini_client.py
+    └── test_orchestrator.py

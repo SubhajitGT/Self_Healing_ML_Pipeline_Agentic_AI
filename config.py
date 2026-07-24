@@ -5,7 +5,7 @@ Project : Self-Healing Agentic AI ML Pipeline
 File    : config.py
 
 Purpose :
-Central configuration file for the complete project.
+Master configuration for the complete project.
 
 Author  : ChatGPT
 ===============================================================================
@@ -13,6 +13,18 @@ Author  : ChatGPT
 
 from pathlib import Path
 import logging
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# ==============================================================================
+# Project Information
+# ==============================================================================
+
+PROJECT_NAME = "Self-Healing Agentic AI ML Pipeline"
+
+VERSION = "1.0.0"
 
 # ==============================================================================
 # Project Paths
@@ -21,6 +33,8 @@ import logging
 PROJECT_ROOT = Path(__file__).resolve().parent
 
 DATA_DIR = PROJECT_ROOT / "data"
+
+TOOLS_DIR = PROJECT_ROOT / "tools"
 
 DATABASE_DIR = PROJECT_ROOT / "database"
 
@@ -32,11 +46,17 @@ LOG_DIR = PROJECT_ROOT / "logs"
 
 OUTPUT_DIR = PROJECT_ROOT / "output"
 
-# Create directories automatically
+SAMPLE_DATA_DIR = OUTPUT_DIR / "sample_datasets"
+
+MONITORING_DIR = PROJECT_ROOT / "monitoring"
+
+# Automatically create folders
 
 for directory in [
 
     DATA_DIR,
+
+    TOOLS_DIR,
 
     DATABASE_DIR,
 
@@ -46,16 +66,17 @@ for directory in [
 
     LOG_DIR,
 
-    OUTPUT_DIR
+    OUTPUT_DIR,
+
+    SAMPLE_DATA_DIR,
+
+    MONITORING_DIR
 
 ]:
 
     directory.mkdir(
-
         parents=True,
-
         exist_ok=True
-
     )
 
 # ==============================================================================
@@ -70,9 +91,19 @@ LOG_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
 # SQLite Database
 # ==============================================================================
 
-SQLITE_DB_NAME = "self_healing_pipeline.db"
+DATABASE_NAME = "self_healing_pipeline.db"
 
-SQLITE_DB_PATH = DATABASE_DIR / SQLITE_DB_NAME
+SQLITE_DB_NAME = DATABASE_NAME
+
+SQLITE_DB_PATH = DATABASE_DIR / DATABASE_NAME
+
+# ==============================================================================
+# Random Seed
+# ==============================================================================
+
+RANDOM_SEED = 42
+
+DEFAULT_RANDOM_SEED = RANDOM_SEED
 
 # ==============================================================================
 # Dataset Configuration
@@ -81,8 +112,6 @@ SQLITE_DB_PATH = DATABASE_DIR / SQLITE_DB_NAME
 TARGET_COLUMN = "Sales"
 
 DATE_COLUMN = "Date"
-
-# Required columns in uploaded Excel
 
 REQUIRED_COLUMNS = [
 
@@ -98,15 +127,11 @@ REQUIRED_COLUMNS = [
 
 ]
 
-# Numeric columns
-
 NUMERIC_COLUMNS = [
 
     TARGET_COLUMN
 
 ]
-
-# Date columns
 
 DATE_COLUMNS = [
 
@@ -114,15 +139,11 @@ DATE_COLUMNS = [
 
 ]
 
-# Columns where negative values are not allowed
-
 NON_NEGATIVE_COLUMNS = [
 
     TARGET_COLUMN
 
 ]
-
-# Categorical columns
 
 CATEGORICAL_COLUMNS = [
 
@@ -135,33 +156,241 @@ CATEGORICAL_COLUMNS = [
 ]
 
 # ==============================================================================
+# Validation Configuration
+# ==============================================================================
+
+MAX_ALLOWED_MISSING_PERCENT = 20
+
+MAX_ALLOWED_DUPLICATES = 0
+
+MIN_HEALTH_SCORE = 70
+
+# ==============================================================================
+# Supported File Types
+# ==============================================================================
+
+SUPPORTED_FILE_TYPES = [
+
+    ".xlsx",
+
+    ".xls",
+
+    ".csv"
+
+]
+
+# ==============================================================================
+# Date Formats
+# ==============================================================================
+
+DATE_FORMAT = "%Y-%m-%d"
+
+TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+# ==============================================================================
 # Sample Dataset Generation
 # ==============================================================================
 
-DEFAULT_SAMPLE_ROWS = 1000
+# Default number of rows
 
-DEFAULT_RANDOM_SEED = 42
+DEFAULT_ROWS = 1000
+
+DEFAULT_SAMPLE_ROWS = DEFAULT_ROWS
+
+# Dataset start date
+
+DATE_START = "2023-01-01"
+
+# ------------------------------------------------------------------------------
+# Regions
+# ------------------------------------------------------------------------------
+
+REGIONS = [
+
+    "North",
+
+    "South",
+
+    "East",
+
+    "West"
+
+]
+
+# ------------------------------------------------------------------------------
+# Product Categories
+# ------------------------------------------------------------------------------
+
+PRODUCT_CATEGORIES = [
+
+    "Electronics",
+
+    "Furniture",
+
+    "Clothing",
+
+    "Sports",
+
+    "Groceries"
+
+]
+
+# ------------------------------------------------------------------------------
+# Dataset Size
+# ------------------------------------------------------------------------------
+
+NUMBER_OF_PRODUCTS = 50
+
+NUMBER_OF_STORES = 25
+
+LARGE_DATASET_ROWS = 100000
+
+# ------------------------------------------------------------------------------
+# Base Values
+# ------------------------------------------------------------------------------
+
+BASE_SALES = 500
+
+BASE_PRICE = 1200
+
+BASE_MARKETING = 5000
+
+BASE_TEMPERATURE = 28
+
+BASE_INVENTORY = 400
+
+BASE_COMPETITOR_PRICE = 1180
+
+BASE_FOOTFALL = 350
+
+# ------------------------------------------------------------------------------
+# Standard Deviations
+# ------------------------------------------------------------------------------
+
+PRICE_STD = 150
+
+MARKETING_STD = 800
+
+TEMPERATURE_STD = 6
+
+INVENTORY_STD = 60
+
+COMPETITOR_STD = 120
+
+FOOTFALL_STD = 70
+
+RANDOM_NOISE_STD = 50
+
+# ------------------------------------------------------------------------------
+# Feature Weights
+# ------------------------------------------------------------------------------
+
+PRICE_WEIGHT = -0.18
+
+MARKETING_WEIGHT = 0.06
+
+TEMPERATURE_WEIGHT = 2.5
+
+INVENTORY_WEIGHT = 0.15
+
+COMPETITOR_WEIGHT = -0.12
+
+FOOTFALL_WEIGHT = 0.42
+
+# ------------------------------------------------------------------------------
+# Holiday & Weekend Effects
+# ------------------------------------------------------------------------------
+
+HOLIDAY_BONUS = 250
+
+WEEKEND_BONUS = 120
+
+# ------------------------------------------------------------------------------
+# Discount Range
+# ------------------------------------------------------------------------------
+
+DISCOUNT_MIN = 0
+
+DISCOUNT_MAX = 40
+
+# ==============================================================================
+# Drift Injection
+# ==============================================================================
+
+SUDDEN_DRIFT_PERCENT = 40
+
+GRADUAL_DRIFT_PERCENT = 20
+
+CONCEPT_DRIFT_PERCENT = 30
+
+MISSING_VALUE_PERCENT = 10
+
+OUTLIER_PERCENT = 2
+
+DUPLICATE_PERCENT = 5
+
+NEGATIVE_VALUE_PERCENT = 2
+
+NEW_CATEGORY_PERCENT = 8
+
+# ==============================================================================
+# Output Excel Files
+# ==============================================================================
+
+NORMAL_DATASET = "sales_normal.xlsx"
+
+SUDDEN_DRIFT_DATASET = "sales_sudden_drift.xlsx"
+
+GRADUAL_DRIFT_DATASET = "sales_gradual_drift.xlsx"
+
+CONCEPT_DRIFT_DATASET = "sales_concept_drift.xlsx"
+
+MISSING_VALUE_DATASET = "sales_missing_values.xlsx"
+
+OUTLIER_DATASET = "sales_outliers.xlsx"
+
+DUPLICATE_DATASET = "sales_duplicate_rows.xlsx"
+
+NEGATIVE_VALUE_DATASET = "sales_negative_values.xlsx"
+
+NEW_CATEGORY_DATASET = "sales_new_category.xlsx"
+
+BAD_SCHEMA_DATASET = "sales_bad_schema.xlsx"
+
+LARGE_DATASET = "sales_large_dataset.xlsx"
+
+# ==============================================================================
+# Excel Sheet Names
+# ==============================================================================
+
+DATA_SHEET = "Sales_Data"
+
+METADATA_SHEET = "Metadata"
 
 # ==============================================================================
 # Feature Engineering
 # ==============================================================================
 
+# Remove duplicate rows before training
 DROP_DUPLICATES = True
 
+# Fill missing numeric values
 FILL_NUMERIC_NA = 0
 
+# Fill missing categorical values
 FILL_CATEGORICAL_NA = "Unknown"
 
+# Enable categorical encoding
 ENABLE_LABEL_ENCODING = True
 
 # ==============================================================================
 # Machine Learning
 # ==============================================================================
 
+# Train-Test Split
 TEST_SIZE = 0.20
 
-RANDOM_SEED = 42
-
+# Model Hyperparameters
 N_ESTIMATORS = 100
 
 LEARNING_RATE = 0.10
@@ -178,17 +407,43 @@ MODEL_EXTENSION = ".pkl"
 
 DEFAULT_MODEL_VERSION = 1
 
+MODEL_FILE_NAME = f"{MODEL_NAME}_v{DEFAULT_MODEL_VERSION}{MODEL_EXTENSION}"
+
+# ==============================================================================
+# Model Evaluation
+# ==============================================================================
+
+EVALUATION_METRICS = [
+
+    "mae",
+
+    "rmse",
+
+    "r2"
+
+]
+
 # ==============================================================================
 # Drift Detection
 # ==============================================================================
 
+# PSI Configuration
+
 PSI_BUCKETS = 10
+
+# PSI Interpretation
+#
+# < 0.10  -> No Drift
+# 0.10-0.25 -> Moderate Drift
+# >0.25 -> Significant Drift
 
 PSI_LOW_THRESHOLD = 0.10
 
 PSI_MEDIUM_THRESHOLD = 0.25
 
 PSI_HIGH_THRESHOLD = 0.50
+
+# Statistical Drift
 
 MEAN_SHIFT_THRESHOLD = 0.15
 
@@ -205,29 +460,24 @@ RMSE_WARNING_PERCENT = 20
 MAE_WARNING_PERCENT = 20
 
 # ==============================================================================
-# Dataset Validation
-# ==============================================================================
-
-MAX_ALLOWED_MISSING_PERCENT = 20
-
-MAX_ALLOWED_DUPLICATES = 0
-
-MIN_HEALTH_SCORE = 70
-
-# ==============================================================================
 # Gemini Configuration
 # ==============================================================================
 
-GEMINI_MODEL = ""
+# Fill these before running Gemini modules
 
-GEMINI_API_KEY = ""
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+
+GEMINI_MODEL = os.getenv(
+    "GEMINI_MODEL",
+    "gemini-2.5-flash"
+)
 
 GEMINI_TEMPERATURE = 0.2
 
 MAX_OUTPUT_TOKENS = 2048
 
 # ==============================================================================
-# Streamlit
+# Streamlit Configuration
 # ==============================================================================
 
 APP_TITLE = "Self-Healing Agentic AI ML Pipeline"
@@ -236,20 +486,58 @@ PAGE_ICON = "🤖"
 
 LAYOUT = "wide"
 
+SIDEBAR_STATE = "expanded"
+
 # ==============================================================================
-# Miscellaneous
+# Report Configuration
 # ==============================================================================
 
-DATE_FORMAT = "%Y-%m-%d"
+SAVE_REPORTS = True
 
-TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
+REPORT_DIRECTORY = OUTPUT_DIR / "reports"
 
-SUPPORTED_FILE_TYPES = [
+REPORT_DIRECTORY.mkdir(
 
-    ".xlsx",
+    parents=True,
 
-    ".xls",
+    exist_ok=True
 
-    ".csv"
+)
 
-]
+# ==============================================================================
+# Versioning
+# ==============================================================================
+
+MODEL_REGISTRY_TABLE = "model_registry"
+
+TRAINING_HISTORY_TABLE = "training_history"
+
+PREDICTION_HISTORY_TABLE = "prediction_history"
+
+DRIFT_HISTORY_TABLE = "drift_history"
+
+VALIDATION_HISTORY_TABLE = "validation_history"
+
+# ==============================================================================
+# Backward Compatibility
+# ==============================================================================
+
+# Random
+
+DEFAULT_RANDOM_SEED = RANDOM_SEED
+
+# Dataset
+
+DEFAULT_SAMPLE_ROWS = DEFAULT_ROWS
+
+# SQLite
+
+SQLITE_DATABASE = SQLITE_DB_PATH
+
+# Model
+
+MODEL_PATH = SAVED_MODEL_DIR
+
+# Output
+
+REPORTS_DIR = REPORT_DIRECTORY
