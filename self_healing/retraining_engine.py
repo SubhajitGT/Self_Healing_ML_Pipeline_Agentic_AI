@@ -36,7 +36,7 @@ import config
 
 from ml.feature_engineering import FeatureEngineer
 from ml.trainer import ModelTrainer
-from ml.evaluator import Evaluator
+from ml.evaluator import ModelEvaluator
 
 # ==============================================================================
 # Logging

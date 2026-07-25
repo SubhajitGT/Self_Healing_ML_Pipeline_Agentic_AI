@@ -18,6 +18,10 @@ from pathlib import Path
 
 import streamlit as st
 
+from utils.session import initialize_session_state
+
+initialize_session_state()
+
 # ==============================================================================
 # Add Project Root
 # ==============================================================================
