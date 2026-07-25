@@ -79,7 +79,7 @@ class RetrainingEngine:
 
         self.trainer = ModelTrainer()
 
-        self.evaluator = Evaluator()
+        self.evaluator = ModelEvaluator()
 
     # -------------------------------------------------------------------------
 
