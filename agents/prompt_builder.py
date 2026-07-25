@@ -194,3 +194,101 @@ Return ONLY JSON.
 """
 
         return prompt
+
+# ==============================================================================
+# Standalone Testing
+# ==============================================================================
+
+if __name__ == "__main__":
+
+    print("=" * 70)
+    print("PROMPT BUILDER TEST")
+    print("=" * 70)
+
+    try:
+
+        validation_report = {
+
+            "status": "PASS",
+
+            "missing_columns": [],
+
+            "duplicate_rows": 0,
+
+            "null_percentage": 0.3
+
+        }
+
+        drift_report = {
+
+            "drift_detected": True,
+
+            "overall_drift_score": 0.34,
+
+            "drifted_columns": [
+
+                "Marketing_Spend",
+
+                "Units_Sold"
+
+            ]
+
+        }
+
+        performance_report = {
+
+            "status": "WARNING",
+
+            "mae": 14.52,
+
+            "rmse": 21.81,
+
+            "r2": 0.89
+
+        }
+
+        builder = PromptBuilder()
+
+        prompt = builder.build_diagnosis_prompt(
+
+            validation_report=validation_report,
+
+            drift_report=drift_report,
+
+            performance_report=performance_report
+
+        )
+
+        print()
+
+        print("PROMPT PREVIEW")
+
+        print("-" * 70)
+
+        print(prompt[:1500])
+
+        print()
+
+        print("Prompt Length :", len(prompt))
+
+        print()
+
+        print("=" * 70)
+
+        print("PROMPT BUILDER TEST PASSED")
+
+        print("=" * 70)
+
+    except Exception as error:
+
+        print(error)
+
+        print()
+
+        print("=" * 70)
+
+        print("PROMPT BUILDER TEST FAILED")
+
+        print("=" * 70)
+
+        print(error)

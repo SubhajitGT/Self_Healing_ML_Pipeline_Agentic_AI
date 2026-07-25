@@ -154,3 +154,110 @@ class DiagnosisAgent:
             print(f"{key:20}: {value}")
 
         print()
+
+# ==============================================================================
+# Standalone Testing
+# ==============================================================================
+
+if __name__ == "__main__":
+
+    print("=" * 70)
+    print("DIAGNOSIS AGENT TEST")
+    print("=" * 70)
+
+    try:
+
+        # ---------------------------------------------------------
+        # Sample Validation Report
+        # ---------------------------------------------------------
+
+        validation_report = {
+
+            "status": "PASS",
+
+            "missing_columns": [],
+
+            "duplicate_rows": 0,
+
+            "null_percentage": 0.0
+
+        }
+
+        # ---------------------------------------------------------
+        # Sample Drift Report
+        # ---------------------------------------------------------
+
+        drift_report = {
+
+            "drift_detected": True,
+
+            "overall_drift_score": 0.37,
+
+            "drifted_columns": [
+
+                "Marketing_Spend",
+
+                "Units_Sold"
+
+            ]
+
+        }
+
+        # ---------------------------------------------------------
+        # Sample Performance Report
+        # ---------------------------------------------------------
+
+        performance_report = {
+
+            "status": "WARNING",
+
+            "mae": 14.25,
+
+            "rmse": 19.84,
+
+            "r2": 0.91
+
+        }
+
+        # ---------------------------------------------------------
+        # Diagnosis
+        # ---------------------------------------------------------
+
+        agent = DiagnosisAgent()
+
+        diagnosis = agent.diagnose(
+
+            validation_report,
+
+            drift_report,
+
+            performance_report
+
+        )
+
+        # ---------------------------------------------------------
+        # Print Result
+        # ---------------------------------------------------------
+
+        agent.pretty_print(
+
+            diagnosis
+
+        )
+
+        print("=" * 70)
+        print("DIAGNOSIS AGENT TEST PASSED")
+        print("=" * 70)
+
+    except Exception as error:
+
+        logger.exception(error)
+
+        print()
+
+        print("=" * 70)
+        print("DIAGNOSIS AGENT TEST FAILED")
+        print("=" * 70)
+
+        print(error)
+

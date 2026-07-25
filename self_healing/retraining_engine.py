@@ -175,6 +175,8 @@ class RetrainingEngine:
 
     # -------------------------------------------------------------------------
 
+        # -------------------------------------------------------------------------
+
     def evaluate_candidate(
         self,
         training_result: Dict
@@ -195,30 +197,21 @@ class RetrainingEngine:
         logger.info("Evaluating Candidate Model")
         logger.info("=" * 60)
 
-        model = training_result["model"]
-
-        X_test = training_result["X_test"]
-
-        y_test = training_result["y_test"]
+        # ---------------------------------------------------------
+        # Evaluate using ModelEvaluator
+        # ---------------------------------------------------------
 
         metrics = self.evaluator.evaluate(
 
-            model,
-
-            X_test,
-
-            y_test
+            training_result
 
         )
 
         logger.info(
-
             "Candidate evaluation completed."
-
         )
 
         return metrics
-    
     # -------------------------------------------------------------------------
 
     def retrain(

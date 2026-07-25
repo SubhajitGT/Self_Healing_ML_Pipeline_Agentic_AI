@@ -114,7 +114,7 @@ if st.button(
         # Drift Detection
         # ---------------------------------------------------------
 
-        drift_report = drift_detector.detect_drift(
+        drift_report = drift_detector.detect_category_drift(
 
             dataframe
 

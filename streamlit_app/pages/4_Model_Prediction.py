@@ -134,13 +134,25 @@ if st.button(
 
         predictor = Predictor()
 
-        result = predictor.predict_using_saved_model(
+        try:
+
+            result = predictor.predict_using_saved_model(
 
             processed_df,
 
             version=1
 
         )
+
+        except Exception as error:
+
+            st.error(
+
+            str(error)
+
+            )
+
+            st.stop()
 
         prediction_df = dataframe.copy()
 

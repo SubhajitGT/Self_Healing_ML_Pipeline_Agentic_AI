@@ -121,3 +121,45 @@ The dashboard pages are available from the sidebar.
 Start with **🏠 Dashboard**.
 """
 )
+
+st.sidebar.markdown("## Progress")
+
+steps = {
+
+    "Upload":
+
+        st.session_state.uploaded_dataframe,
+
+    "Validation":
+
+        st.session_state.validation_report,
+
+    "Prediction":
+
+        st.session_state.prediction_result,
+
+    "Monitoring":
+
+        st.session_state.performance_report,
+
+    "AI":
+
+        st.session_state.ai_report,
+
+    "Healing":
+
+        st.session_state.self_healing_report
+
+}
+
+for step, value in steps.items():
+
+    icon = "✅" if value is not None else "⭕"
+
+    st.sidebar.write(
+
+        icon,
+
+        step
+
+    )

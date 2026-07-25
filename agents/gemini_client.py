@@ -181,3 +181,59 @@ class GeminiClient:
                 "raw_response": response_text
 
             }
+        
+# ==============================================================================
+# Standalone Testing
+# ==============================================================================
+
+if __name__ == "__main__":
+
+    print("=" * 70)
+    print("GEMINI CLIENT TEST")
+    print("=" * 70)
+
+    try:
+
+        client = GeminiClient()
+
+        prompt = """
+Reply ONLY with this exact sentence:
+
+Gemini Connection Successful
+"""
+
+        response = client.generate_response(
+
+            prompt
+
+        )
+
+        print()
+
+        print("Gemini Response")
+
+        print("-" * 70)
+
+        print(response)
+
+        print()
+
+        print("=" * 70)
+
+        print("GEMINI CLIENT TEST PASSED")
+
+        print("=" * 70)
+
+    except Exception as error:
+
+        logger.exception(error)
+
+        print()
+
+        print("=" * 70)
+
+        print("GEMINI CLIENT TEST FAILED")
+
+        print("=" * 70)
+
+        print(error)

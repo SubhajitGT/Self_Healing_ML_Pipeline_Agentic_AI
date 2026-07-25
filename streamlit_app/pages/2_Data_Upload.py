@@ -85,6 +85,27 @@ if uploaded_file is not None:
             )
 
         st.session_state.uploaded_dataframe = dataframe
+        # Reset downstream state
+
+        keys = [
+
+    "validation_report",
+
+    "prediction_result",
+
+    "drift_report",
+
+    "performance_report",
+
+    "ai_report",
+
+    "self_healing_report"
+
+]
+
+        for key in keys:
+
+            st.session_state[key] = None
 
         st.success(
 
