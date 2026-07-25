@@ -189,7 +189,7 @@ status = {
 
     "Self-Healing":"✅ Completed",
 
-    "Streamlit":"🟡 In Progress"
+    "Streamlit":"✅ In Progress"
 
 }
 

@@ -1,2 +1,15 @@
 .venv/
 .env
+# Logs
+
+logs/
+
+*.log
+
+# Models
+
+models/
+
+*.joblib
+
+*.pkl
