@@ -510,12 +510,11 @@ MAE_WARNING_PERCENT = 20
 
 # Fill these before running Gemini modules
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-
-GEMINI_MODEL = os.getenv(
-    "GEMINI_MODEL",
-    "gemini-2.5-flash"
-)
+try:
+    import streamlit as st
+    GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
+except Exception:
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 GEMINI_TEMPERATURE = 0.2
 

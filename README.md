@@ -30,7 +30,7 @@ This project demonstrates a **fully automated Self-Healing Machine Learning Pipe
 > **TODO:** Replace after deployment
 
 ```
-https://<your-streamlit-url>
+https://selfhealingmlpipelineagenticai.streamlit.app/
 ```
 
 ---
