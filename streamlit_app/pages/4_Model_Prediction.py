@@ -39,8 +39,6 @@ from utils.session import initialize_session_state
 
 initialize_session_state()
 
-import sklearn
-st.write(sklearn.__version__)
 # ==============================================================================
 # Page
 # ==============================================================================
