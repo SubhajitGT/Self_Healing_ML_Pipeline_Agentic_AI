@@ -516,8 +516,11 @@ try:
     GEMINI_MODEL = st.secrets["GEMINI_MODEL"]
 except Exception:
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-    GEMINI_MODEL = os.getenv["GEMINI_MODEL"]
-    
+    GEMINI_MODEL = os.getenv(
+    "GEMINI_MODEL",
+    "gemini-2.5-flash"
+)
+
 GEMINI_TEMPERATURE = 0.2
 
 MAX_OUTPUT_TOKENS = 2048
