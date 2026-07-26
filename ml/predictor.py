@@ -270,7 +270,12 @@ class Predictor:
 
         manager = ModelManager()
 
+        print("=" * 80)
+        print("Loading model...")
+        print("Version :", version)
         model = manager.load_model(version)
+        print("Loaded :", type(model))
+        print("=" * 80)
 
         prediction_result = self.predict_dataframe(
 

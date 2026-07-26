@@ -95,7 +95,7 @@ if st.button(
             dataframe
 
         )
-
+        
         st.session_state.validation_report = (
 
             validation_report

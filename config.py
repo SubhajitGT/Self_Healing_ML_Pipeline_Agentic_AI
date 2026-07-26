@@ -109,25 +109,65 @@ DEFAULT_RANDOM_SEED = RANDOM_SEED
 # Dataset Configuration
 # ==============================================================================
 
+# ==============================================================================
+# Dataset Configuration
+# ==============================================================================
+
 TARGET_COLUMN = "Sales"
 
-DATE_COLUMN = "Date"
+DATE_COLUMN = "Transaction_Date"
 
 REQUIRED_COLUMNS = [
 
-    "Date",
+    "Transaction_ID",
+
+    "Transaction_Date",
+
+    "Store_ID",
 
     "Region",
 
-    "Product",
+    "Product_Category",
 
-    "Category",
+    "Product_ID",
+
+    "Price",
+
+    "Discount",
+
+    "Marketing_Spend",
+
+    "Competitor_Price",
+
+    "Inventory_Level",
+
+    "Temperature",
+
+    "Holiday",
+
+    "Weekend",
+
+    "Customer_Footfall",
 
     TARGET_COLUMN
 
 ]
 
 NUMERIC_COLUMNS = [
+
+    "Price",
+
+    "Discount",
+
+    "Marketing_Spend",
+
+    "Competitor_Price",
+
+    "Inventory_Level",
+
+    "Temperature",
+
+    "Customer_Footfall",
 
     TARGET_COLUMN
 
@@ -141,6 +181,14 @@ DATE_COLUMNS = [
 
 NON_NEGATIVE_COLUMNS = [
 
+    "Price",
+
+    "Marketing_Spend",
+
+    "Inventory_Level",
+
+    "Customer_Footfall",
+
     TARGET_COLUMN
 
 ]
@@ -149,12 +197,9 @@ CATEGORICAL_COLUMNS = [
 
     "Region",
 
-    "Product",
-
-    "Category"
+    "Product_Category"
 
 ]
-
 # ==============================================================================
 # Validation Configuration
 # ==============================================================================

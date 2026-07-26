@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+import traceback
 
 # ==============================================================================
 # Add Project Root
@@ -76,6 +77,30 @@ if dataframe is None:
 
     st.stop()
 
+validation_report = st.session_state.get("validation_report")
+
+if validation_report is None:
+
+    st.warning(
+        "Please run Data Validation before Prediction."
+    )
+
+    st.stop()
+
+status = str(validation_report.get("status", "")).upper()
+
+if status != "PASS":
+
+    st.error(
+        "Prediction is disabled because the uploaded dataset failed validation."
+    )
+
+    st.info(
+        "Please upload a valid dataset or correct the validation errors."
+    )
+
+    st.stop()
+
 # ==============================================================================
 # Prediction
 # ==============================================================================
@@ -98,9 +123,11 @@ if st.button(
         # Feature Engineering
         # ----------------------------------------------------------
 
-        engineer = FeatureEngineer()
+        try:
 
-        processed_df, _ = engineer.prepare_features(
+            engineer = FeatureEngineer()
+
+            processed_df, _ = engineer.prepare_features(
 
             dataframe.copy()
 
@@ -110,7 +137,7 @@ if st.button(
         # Remove Target if Present
         # ----------------------------------------------------------
 
-        target = getattr(
+            target = getattr(
 
             engineer,
 
@@ -120,9 +147,9 @@ if st.button(
 
         )
 
-        if target in processed_df.columns:
+            if target in processed_df.columns:
 
-            processed_df = processed_df.drop(
+                processed_df = processed_df.drop(
 
                 columns=[target]
 
@@ -132,9 +159,7 @@ if st.button(
         # Prediction
         # ----------------------------------------------------------
 
-        predictor = Predictor()
-
-        try:
+            predictor = Predictor()
 
             result = predictor.predict_using_saved_model(
 
@@ -144,16 +169,11 @@ if st.button(
 
         )
 
-        except Exception as error:
+        except Exception:
 
-            st.error(
-
-            str(error)
-
-            )
+            st.code(traceback.format_exc())
 
             st.stop()
-
         prediction_df = dataframe.copy()
 
         prediction_df["Prediction"] = result[
