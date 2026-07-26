@@ -34,6 +34,8 @@ from monitoring.validator import DatasetValidator
 from monitoring.drift_detector import DriftDetector
 from monitoring.performance_monitor import PerformanceMonitor
 
+from data.generator import SalesDataGenerator
+
 from utils.session import initialize_session_state
 
 initialize_session_state()
@@ -60,13 +62,13 @@ st.markdown("---")
 # Dataset Check
 # ==============================================================================
 
-dataframe = st.session_state.get(
+current_df = st.session_state.get(
 
     "uploaded_dataframe"
 
 )
 
-if dataframe is None:
+if current_df is None:
 
     st.warning(
 
@@ -106,29 +108,72 @@ if st.button(
 
         validation_report = validator.validate(
 
-            dataframe
+            current_df
 
         )
+
+        # ---------------------------------------------------------
+        # Generate Reference Dataset
+        # ---------------------------------------------------------
+
+        generator = SalesDataGenerator(
+
+            rows=len(current_df)
+
+        )
+
+        reference_df = generator.generate_dataset()
 
         # ---------------------------------------------------------
         # Drift Detection
         # ---------------------------------------------------------
 
-        drift_report = drift_detector.detect_category_drift(
+        drift_report = drift_detector.detect(
 
-            dataframe
+            reference_df,
+
+            current_df
 
         )
 
         # ---------------------------------------------------------
-        # Performance Monitoring
+        # Demo Performance Metrics
+        #
+        # Later these will come from the production model
+        # and current prediction evaluation.
         # ---------------------------------------------------------
+
+        previous_metrics = {
+
+            "mae": 10.20,
+
+            "rmse": 15.40,
+
+            "r2": 0.962
+
+        }
+
+        current_metrics = {
+
+            "mae": 12.75,
+
+            "rmse": 18.60,
+
+            "r2": 0.935
+
+        }
 
         performance_report = performance_monitor.monitor(
 
-            dataframe
+            previous_metrics,
+
+            current_metrics
 
         )
+
+        # ---------------------------------------------------------
+        # Save Reports
+        # ---------------------------------------------------------
 
         st.session_state.validation_report = validation_report
 
@@ -141,8 +186,7 @@ if st.button(
         "Monitoring completed successfully."
 
     )
-
-# ==============================================================================
+    # ==============================================================================
 # Validation Summary
 # ==============================================================================
 
@@ -154,6 +198,8 @@ validation_report = st.session_state.get(
 
 if validation_report is not None:
 
+    st.markdown("---")
+
     st.subheader("✅ Dataset Validation")
 
     col1, col2, col3 = st.columns(3)
@@ -164,7 +210,7 @@ if validation_report is not None:
 
             "Rows",
 
-            len(dataframe)
+            len(current_df)
 
         )
 
@@ -174,7 +220,7 @@ if validation_report is not None:
 
             "Columns",
 
-            len(dataframe.columns)
+            len(current_df.columns)
 
         )
 
@@ -194,6 +240,12 @@ if validation_report is not None:
 
         )
 
+    st.json(
+
+        validation_report
+
+    )
+
 # ==============================================================================
 # Drift Detection
 # ==============================================================================
@@ -209,6 +261,28 @@ if drift_report is not None:
     st.markdown("---")
 
     st.subheader("📉 Drift Detection")
+
+    if drift_report.get(
+
+        "drift_detected",
+
+        False
+
+    ):
+
+        st.error(
+
+            "Drift detected."
+
+        )
+
+    else:
+
+        st.success(
+
+            "No significant drift detected."
+
+        )
 
     st.json(
 
@@ -230,7 +304,65 @@ if performance_report is not None:
 
     st.markdown("---")
 
-    st.subheader("📈 Performance Metrics")
+    st.subheader("📈 Performance Monitoring")
+
+    summary = performance_report.get(
+
+        "summary",
+
+        {}
+
+    )
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+
+        st.metric(
+
+            "MAE",
+
+            summary.get(
+
+                "current_mae",
+
+                "-"
+
+            )
+
+        )
+
+    with col2:
+
+        st.metric(
+
+            "RMSE",
+
+            summary.get(
+
+                "current_rmse",
+
+                "-"
+
+            )
+
+        )
+
+    with col3:
+
+        st.metric(
+
+            "R²",
+
+            summary.get(
+
+                "current_r2",
+
+                "-"
+
+            )
+
+        )
 
     st.json(
 
@@ -258,19 +390,47 @@ if (
 
     health_score = 100
 
-    if validation_report.get("status") != "PASS":
+    if validation_report.get(
+
+        "status"
+
+    ) != "PASS":
 
         health_score -= 30
 
-    if drift_report.get("drift_detected", False):
+    if drift_report.get(
+
+        "drift_detected",
+
+        False
+
+    ):
 
         health_score -= 40
 
-    if performance_report.get("status", "").upper() != "HEALTHY":
+    performance_status = (
+
+        performance_report.get(
+
+            "status",
+
+            "UNKNOWN"
+
+        )
+
+    ).upper()
+
+    if performance_status != "HEALTHY":
 
         health_score -= 30
 
-    health_score = max(0, health_score)
+    health_score = max(
+
+        0,
+
+        health_score
+
+    )
 
     st.progress(
 
@@ -302,22 +462,32 @@ if (
 
     report = {
 
-        "validation": validation_report,
+        "validation":
 
-        "drift": drift_report,
+            validation_report,
 
-        "performance": performance_report
+        "drift":
+
+            drift_report,
+
+        "performance":
+
+            performance_report
 
     }
 
+    st.markdown("---")
+
     st.download_button(
 
-        "Download Monitoring Report",
+        label="📥 Download Monitoring Report",
 
         data=str(report),
 
         file_name="monitoring_report.txt",
 
-        mime="text/plain"
+        mime="text/plain",
+
+        use_container_width=True
 
     )

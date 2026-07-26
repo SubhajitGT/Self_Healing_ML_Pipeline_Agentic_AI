@@ -21,6 +21,7 @@ from typing import Dict, Any
 
 import numpy as np
 import pandas as pd
+from sklearn.pipeline import Pipeline
 
 # ==============================================================================
 # Add Project Root
@@ -112,7 +113,27 @@ class Predictor:
             len(dataframe)
         )
 
-        predictions = model.predict(dataframe)
+        try:
+
+            predictions = model.predict(
+
+        dataframe
+
+        )
+
+        except Exception as error:
+
+            logger.exception(
+
+        "Prediction failed."
+
+        )
+
+            raise RuntimeError(
+
+        f"Prediction failed : {error}"
+
+    )    from error
 
         logger.info(
             "Prediction completed successfully."
@@ -120,11 +141,21 @@ class Predictor:
 
         return {
 
-            "predictions": predictions,
+            "predictions":
 
-            "prediction_count": len(predictions),
+        predictions,
 
-            "prediction_time": datetime.now().isoformat()
+    "prediction_count":
+
+        len(predictions),
+
+    "prediction_time":
+
+        datetime.now().isoformat(),
+
+    "pipeline":
+
+        True
 
         }
 
@@ -270,12 +301,32 @@ class Predictor:
 
         manager = ModelManager()
 
-        print("=" * 80)
-        print("Loading model...")
-        print("Version :", version)
-        model = manager.load_model(version)
-        print("Loaded :", type(model))
-        print("=" * 80)
+        logger.info(
+
+    "Loading production pipeline (Version %d)...",
+
+        version
+
+    )
+
+        model = manager.load_model(
+
+        version
+
+    )
+        if not isinstance(
+
+    model,
+
+    Pipeline
+
+):
+
+            raise TypeError(
+
+        "Loaded model is not a sklearn Pipeline."
+
+    )
 
         prediction_result = self.predict_dataframe(
 
@@ -286,6 +337,12 @@ class Predictor:
         )
 
         prediction_result["model_version"] = version
+
+        prediction_result["model_type"] = type(
+
+    model.named_steps["model"]
+
+        ).__name__
 
         return prediction_result
     

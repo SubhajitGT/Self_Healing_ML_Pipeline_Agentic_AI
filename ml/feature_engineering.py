@@ -119,7 +119,7 @@ class FeatureEngineer:
 
             "missing_values_filled": 0,
 
-            "categorical_columns_encoded": 0,
+            "categorical_columns_detected": 0,
 
             "features_created": 0
 
@@ -366,6 +366,11 @@ class FeatureEngineer:
             dataframe["Transaction_Date"]
             .dt.quarter
         )
+        dataframe.drop(
+    columns=["Transaction_Date"],
+    inplace=True,
+    errors="ignore"
+    )
 
         self.metadata["features_created"] += 5
 
@@ -381,65 +386,6 @@ class FeatureEngineer:
 
     # -------------------------------------------------------------------------
 
-    def encode_categorical_columns(
-        self,
-        dataframe: pd.DataFrame
-    ) -> pd.DataFrame:
-        """
-        One-Hot Encode categorical columns.
-
-        Parameters
-        ----------
-        dataframe : pd.DataFrame
-
-        Returns
-        -------
-        pd.DataFrame
-        """
-
-        logger.info("Encoding categorical columns...")
-
-        categorical_columns = [
-
-            "Region",
-
-            "Product_Category"
-
-        ]
-
-        encoded_columns = [
-
-            column
-
-            for column in categorical_columns
-
-            if column in dataframe.columns
-
-        ]
-
-        dataframe = pd.get_dummies(
-
-            dataframe,
-
-            columns=encoded_columns,
-
-            drop_first=False,
-
-            dtype=int
-
-        )
-
-        self.metadata["categorical_columns_encoded"] = len(encoded_columns)
-
-        logger.info(
-
-            "Encoded categorical columns : %s",
-
-            encoded_columns
-
-        )
-
-        return dataframe 
         
     # -------------------------------------------------------------------------
 
@@ -476,7 +422,21 @@ class FeatureEngineer:
 
         dataframe = self.create_date_features(dataframe)
 
-        dataframe = self.encode_categorical_columns(dataframe)
+        categorical_columns = [
+
+    "Region",
+
+    "Product_Category"
+
+        ]
+
+        self.metadata["categorical_columns_detected"] = sum(
+
+        column in dataframe.columns
+
+        for column in categorical_columns
+
+    )
 
         # -----------------------------------------------------
         # Remove columns not required for ML
@@ -484,9 +444,7 @@ class FeatureEngineer:
 
         columns_to_drop = [
 
-            "Transaction_ID",
-
-            "Transaction_Date"
+            "Transaction_ID"
 
         ]
 

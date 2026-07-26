@@ -19,7 +19,7 @@ from pathlib import Path
 from datetime import datetime
 
 import joblib
-
+from sklearn.pipeline import Pipeline
 # ==============================================================================
 # Add Project Root
 # ==============================================================================
@@ -99,6 +99,13 @@ class ModelManager:
         logger.info(
             "Saving model : %s",
             model_name
+        )
+        if not isinstance(model, Pipeline):
+
+            raise TypeError(
+
+        "Expected a sklearn Pipeline."
+
         )
 
         joblib.dump(

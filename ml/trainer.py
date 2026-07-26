@@ -5,7 +5,7 @@ Project : Self-Healing Agentic AI ML Pipeline
 File    : trainer.py
 
 Purpose :
-Train Machine Learning model.
+Train Production ML Pipeline using sklearn Pipeline.
 
 Author  : ChatGPT
 ===============================================================================
@@ -16,7 +16,16 @@ from __future__ import annotations
 import sys
 import logging
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
+
+import pandas as pd
+
+from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.impute import SimpleImputer
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
 
 # ==============================================================================
 # Add Project Root
@@ -28,10 +37,6 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 # ==============================================================================
-
-import pandas as pd
-
-from sklearn.model_selection import train_test_split
 
 import config
 
@@ -52,23 +57,22 @@ console_handler.setFormatter(formatter)
 if not logger.handlers:
     logger.addHandler(console_handler)
 
-
 # ==============================================================================
 # Model Trainer
 # ==============================================================================
 
+
 class ModelTrainer:
     """
-    Train Machine Learning model.
+    Production Model Trainer.
 
     Responsibilities
     ----------------
-    1. Split dataset
-    2. Prepare feature matrix
-    3. Prepare target vector
-    4. Return train/test datasets
-
-    Actual model training will be added in Phase 3.2A.2.
+    1. Split train/test data
+    2. Build preprocessing pipeline
+    3. Train ML Pipeline
+    4. Validate pipeline
+    5. Return training artefacts
     """
 
     # -------------------------------------------------------------------------
@@ -88,19 +92,12 @@ class ModelTrainer:
         dataframe: pd.DataFrame
     ) -> Dict:
         """
-        Split processed dataframe into
-        training and testing datasets.
-
-        Parameters
-        ----------
-        dataframe : pd.DataFrame
-
-        Returns
-        -------
-        Dict
+        Split dataframe into train/test.
         """
 
-        logger.info("Preparing train/test datasets...")
+        logger.info("=" * 60)
+        logger.info("Preparing Train/Test Split")
+        logger.info("=" * 60)
 
         if self.target_column not in dataframe.columns:
 
@@ -110,27 +107,13 @@ class ModelTrainer:
 
             )
 
-        # -----------------------------------------------------
-        # Separate Features and Target
-        # -----------------------------------------------------
-
         X = dataframe.drop(
 
             columns=[self.target_column]
 
         )
 
-        y = dataframe[
-
-            self.target_column
-
-        ]
-
-        feature_columns = X.columns.tolist()
-
-        # -----------------------------------------------------
-        # Train/Test Split
-        # -----------------------------------------------------
+        y = dataframe[self.target_column]
 
         X_train, X_test, y_train, y_test = train_test_split(
 
@@ -172,49 +155,194 @@ class ModelTrainer:
 
             "y_test": y_test,
 
-            "feature_columns": feature_columns
+            "feature_columns": X.columns.tolist()
 
         }
-    
+
     # -------------------------------------------------------------------------
 
-    def build_model(self):
+    def build_pipeline(
+        self,
+        X_train: pd.DataFrame
+    ) -> Pipeline:
         """
-        Build the Machine Learning model.
-
-        Returns
-        -------
-        GradientBoostingRegressor
+        Build sklearn Pipeline.
         """
 
-        logger.info("Building Gradient Boosting model...")
+        logger.info(
 
-        from sklearn.ensemble import GradientBoostingRegressor
-
-        model = GradientBoostingRegressor(
-
-            n_estimators=config.N_ESTIMATORS,
-
-            learning_rate=config.LEARNING_RATE,
-
-            max_depth=config.MAX_DEPTH,
-
-            random_state=self.random_seed
+            "Building preprocessing pipeline..."
 
         )
 
-        logger.info("Model created successfully.")
+        categorical_columns = X_train.select_dtypes(
 
-        return model
+            include=[
 
-    # -------------------------------------------------------------------------
+                "object",
+
+                "category",
+
+                "bool"
+
+            ]
+
+        ).columns.tolist()
+
+        numeric_columns = [
+
+            column
+
+            for column in X_train.columns
+
+            if column not in categorical_columns
+
+        ]
+
+        logger.info(
+
+            "Categorical Columns : %s",
+
+            categorical_columns
+
+        )
+
+        logger.info(
+
+            "Numeric Columns : %s",
+
+            numeric_columns
+
+        )
+
+        preprocessor = ColumnTransformer(
+
+            transformers=[
+
+                (
+
+                    "numeric",
+
+                    Pipeline(
+
+                        steps=[
+
+                            (
+
+                                "imputer",
+
+                                SimpleImputer(
+
+                                    strategy="median"
+
+                                )
+
+                            )
+
+                        ]
+
+                    ),
+
+                    numeric_columns
+
+                ),
+
+                (
+
+                    "categorical",
+
+                    Pipeline(
+
+                        steps=[
+
+                            (
+
+                                "imputer",
+
+                                SimpleImputer(
+
+                                    strategy="most_frequent"
+
+                                )
+
+                            ),
+
+                            (
+
+                                "encoder",
+
+                                OneHotEncoder(
+
+                                    handle_unknown="ignore"
+
+                                )
+
+                            )
+
+                        ]
+
+                    ),
+
+                    categorical_columns
+
+                )
+
+            ],
+
+            remainder="drop"
+
+        )
+
+        pipeline = Pipeline(
+
+            steps=[
+
+                (
+
+                    "preprocessor",
+
+                    preprocessor
+
+                ),
+
+                (
+
+                    "model",
+
+                    GradientBoostingRegressor(
+
+                        n_estimators=config.N_ESTIMATORS,
+
+                        learning_rate=config.LEARNING_RATE,
+
+                        max_depth=config.MAX_DEPTH,
+
+                        random_state=self.random_seed
+
+                    )
+
+                )
+
+            ]
+
+        )
+
+        logger.info(
+
+            "Pipeline created successfully."
+
+        )
+
+        return pipeline
+    
+        # -------------------------------------------------------------------------
 
     def train(
         self,
         dataframe: pd.DataFrame
     ) -> Dict:
         """
-        Train the Gradient Boosting model.
+        Train complete ML Pipeline.
 
         Parameters
         ----------
@@ -230,10 +358,14 @@ class ModelTrainer:
         logger.info("=" * 60)
 
         # ---------------------------------------------------------
-        # Split dataset
+        # Split Dataset
         # ---------------------------------------------------------
 
-        split_result = self.split_data(dataframe)
+        split_result = self.split_data(
+
+            dataframe
+
+        )
 
         X_train = split_result["X_train"]
 
@@ -246,18 +378,26 @@ class ModelTrainer:
         feature_columns = split_result["feature_columns"]
 
         # ---------------------------------------------------------
-        # Build model
+        # Build Pipeline
         # ---------------------------------------------------------
 
-        model = self.build_model()
+        pipeline = self.build_pipeline(
 
-        # ---------------------------------------------------------
-        # Train model
-        # ---------------------------------------------------------
+            X_train
 
-        logger.info("Training model...")
+        )
 
-        model.fit(
+        logger.info(
+
+            "Training ML Pipeline..."
+
+        )
+        print("\n==================== DTYPES ====================")
+        print(X_train.dtypes)
+        print("================================================\n")
+
+
+        pipeline.fit(
 
             X_train,
 
@@ -265,88 +405,138 @@ class ModelTrainer:
 
         )
 
-        logger.info("Model training completed.")
+        logger.info(
+
+            "Training completed."
+
+        )
 
         # ---------------------------------------------------------
         # Prediction
         # ---------------------------------------------------------
 
-        logger.info("Generating predictions...")
+        logger.info(
 
-        y_pred = model.predict(
+            "Generating predictions..."
+
+        )
+
+        y_pred = pipeline.predict(
 
             X_test
 
         )
 
-        logger.info("Prediction completed.")
+        logger.info(
+
+            "Prediction completed."
+
+        )
 
         # ---------------------------------------------------------
-        # Training metadata
+        # Metadata
         # ---------------------------------------------------------
 
-            # ---------------------------------------------------------
-    # Training metadata
-    # ---------------------------------------------------------
+        metadata = {
 
-        training_metadata = {
+            "training_rows":
 
-        "training_rows": len(X_train),
+                len(X_train),
 
-        "testing_rows": len(X_test),
+            "testing_rows":
 
-        "feature_count": len(feature_columns),
+                len(X_test),
 
-        "model_name": type(model).__name__,
+            "feature_count":
 
-        "target_column": self.target_column,
+                len(feature_columns),
 
-        "hyperparameters": {
+            "feature_columns":
 
-            "n_estimators": config.N_ESTIMATORS,
+                feature_columns,
 
-            "learning_rate": config.LEARNING_RATE,
+            "target_column":
 
-            "max_depth": config.MAX_DEPTH,
+                self.target_column,
 
-            "test_size": config.TEST_SIZE,
+            "model_name":
 
-            "random_seed": config.RANDOM_SEED
+                "GradientBoostingPipeline",
+
+            "hyperparameters": {
+
+                "n_estimators":
+
+                    config.N_ESTIMATORS,
+
+                "learning_rate":
+
+                    config.LEARNING_RATE,
+
+                "max_depth":
+
+                    config.MAX_DEPTH,
+
+                "test_size":
+
+                    config.TEST_SIZE,
+
+                "random_seed":
+
+                    config.RANDOM_SEED
+
+            }
 
         }
 
-    }
-        logger.info("=" * 60)
-        logger.info("Training Completed")
-        logger.info("=" * 60)
+        training_result = {
 
-            # ---------------------------------------------------------
-    # Validate Training Output
-    # ---------------------------------------------------------
+            "model":
 
-        result = {
+                pipeline,
 
-            "model": model,
+            "X_train":
 
-            "X_train": X_train,
+                X_train,
 
-            "X_test": X_test,
+            "X_test":
 
-            "y_train": y_train,
+                X_test,
 
-            "y_test": y_test,
+            "y_train":
 
-            "y_pred": y_pred,
+                y_train,
 
-            "feature_columns": feature_columns,
+            "y_test":
 
-            "metadata": training_metadata
+                y_test,
+
+            "y_pred":
+
+                y_pred,
+
+            "feature_columns":
+
+                feature_columns,
+
+            "metadata":
+
+                metadata
 
         }
 
-        self.validate_trained_model(result)
+        self.validate_trained_model(
 
-        return result
+            training_result
+
+        )
+
+        logger.info("=" * 60)
+        logger.info("Training Completed Successfully")
+        logger.info("=" * 60)
+
+        return training_result
+
     # -------------------------------------------------------------------------
 
     def validate_trained_model(
@@ -354,18 +544,14 @@ class ModelTrainer:
         training_result: Dict
     ) -> bool:
         """
-        Validate that model training completed successfully.
-
-        Parameters
-        ----------
-        training_result : Dict
-
-        Returns
-        -------
-        bool
+        Validate training result.
         """
 
-        logger.info("Validating trained model...")
+        logger.info(
+
+            "Validating trained pipeline..."
+
+        )
 
         required_keys = [
 
@@ -401,31 +587,107 @@ class ModelTrainer:
 
             raise ValueError(
 
-                f"Training result missing keys : {missing}"
+                f"Missing keys : {missing}"
 
             )
 
-        model = training_result["model"]
+        if not isinstance(
 
-        if not hasattr(model, "predict"):
+            training_result["model"],
+
+            Pipeline
+
+        ):
 
             raise TypeError(
 
-                "Returned object is not a valid sklearn model."
+                "Returned object is not a sklearn Pipeline."
 
             )
 
-        if len(training_result["X_test"]) != len(training_result["y_pred"]):
+        if len(
+
+            training_result["X_test"]
+
+        ) != len(
+
+            training_result["y_pred"]
+
+        ):
 
             raise ValueError(
 
-                "Prediction size does not match test dataset."
+                "Prediction count mismatch."
 
             )
 
-        logger.info("Model validation successful.")
+        logger.info(
+
+            "Pipeline validation successful."
+
+        )
 
         return True
+
+    # -------------------------------------------------------------------------
+
+    def print_summary(
+        self,
+        training_result: Dict
+    ) -> None:
+        """
+        Print training summary.
+        """
+
+        metadata = training_result["metadata"]
+
+        print()
+
+        print("=" * 70)
+        print("MODEL TRAINING SUMMARY")
+        print("=" * 70)
+
+        print(
+
+            "Model Name        :",
+
+            metadata["model_name"]
+
+        )
+
+        print(
+
+            "Training Rows     :",
+
+            metadata["training_rows"]
+
+        )
+
+        print(
+
+            "Testing Rows      :",
+
+            metadata["testing_rows"]
+
+        )
+
+        print(
+
+            "Feature Count     :",
+
+            metadata["feature_count"]
+
+        )
+
+        print(
+
+            "Target Column     :",
+
+            metadata["target_column"]
+
+        )
+
+        print("=" * 70)
 
 # ==============================================================================
 # Standalone Testing
@@ -433,147 +695,88 @@ class ModelTrainer:
 
 if __name__ == "__main__":
 
+    from data.generator import SalesDataGenerator
+    from ml.evaluator import ModelEvaluator
+
     print("=" * 70)
-    print("SELF-HEALING AGENTIC AI ML PIPELINE")
     print("MODEL TRAINER TEST")
     print("=" * 70)
 
     try:
 
-        # ---------------------------------------------------------------------
-        # Generate Sample Dataset
-        # ---------------------------------------------------------------------
+        # ---------------------------------------------------------
+        # Generate Dataset
+        # ---------------------------------------------------------
 
-        logger.info("Generating sample dataset...")
+        generator = SalesDataGenerator(
 
-        from data.generator import SalesDataGenerator
-        from ml.feature_engineering import FeatureEngineer
+            rows=1000
 
-        generator = SalesDataGenerator(rows=1000)
-
-        raw_dataframe = generator.generate_dataset()
-
-        logger.info(
-            "Raw Dataset Shape : %s",
-            raw_dataframe.shape
         )
 
-        # ---------------------------------------------------------------------
-        # Feature Engineering
-        # ---------------------------------------------------------------------
+        dataframe = generator.generate_dataset()
 
-        logger.info("Running Feature Engineering...")
+        print()
+
+        print("Dataset Generated Successfully")
+
+        print("Rows :", len(dataframe))
+
+        print("Columns :", len(dataframe.columns))
+
+        # ---------------------------------------------------------
+        # Feature Engineering
+        # ---------------------------------------------------------
+
+        from ml.feature_engineering import FeatureEngineer
 
         engineer = FeatureEngineer()
 
-        processed_dataframe, feature_metadata = engineer.prepare_features(
-            raw_dataframe
-        )
+        processed_df, _ = engineer.prepare_features(
 
-        logger.info(
-            "Processed Dataset Shape : %s",
-            processed_dataframe.shape
-        )
+            dataframe
 
-        # ---------------------------------------------------------------------
-        # Model Training
-        # ---------------------------------------------------------------------
+        )
+        # ---------------------------------------------------------
+        # Train Model
+        # ---------------------------------------------------------
 
         trainer = ModelTrainer()
 
         training_result = trainer.train(
-            processed_dataframe
+
+            processed_df
+
         )
 
-        trainer.validate_trained_model(
+        trainer.print_summary(
+
             training_result
+
         )
 
-        # ---------------------------------------------------------------------
-        # Display Training Summary
-        # ---------------------------------------------------------------------
+        # ---------------------------------------------------------
+        # Evaluate
+        # ---------------------------------------------------------
 
-        metadata = training_result["metadata"]
+        evaluator = ModelEvaluator()
 
-        print()
-        print("=" * 70)
-        print("TRAINING SUMMARY")
-        print("=" * 70)
+        evaluation_result = evaluator.evaluate(
 
-        print(f"Model Name           : {metadata['model_name']}")
-        print(f"Target Column        : {metadata['target_column']}")
-        print(f"Training Rows        : {metadata['training_rows']}")
-        print(f"Testing Rows         : {metadata['testing_rows']}")
-        print(f"Feature Count        : {metadata['feature_count']}")
+            training_result
 
-        print()
-
-        print("=" * 70)
-        print("MODEL HYPERPARAMETERS")
-        print("=" * 70)
-
-        for key, value in metadata["hyperparameters"].items():
-
-            print(f"{key:<20}: {value}")
-
-        print()
-
-        print("=" * 70)
-        print("FEATURE ENGINEERING SUMMARY")
-        print("=" * 70)
-
-        for key, value in feature_metadata.items():
-
-            print(f"{key:<30}: {value}")
-
-        print()
-
-        print("=" * 70)
-        print("TRAIN / TEST SHAPES")
-        print("=" * 70)
-
-        print(
-            "X_train :",
-            training_result["X_train"].shape
         )
 
-        print(
-            "X_test  :",
-            training_result["X_test"].shape
-        )
+        evaluator.print_summary(
 
-        print(
-            "y_train :",
-            training_result["y_train"].shape
-        )
+            evaluation_result
 
-        print(
-            "y_test  :",
-            training_result["y_test"].shape
         )
 
         print()
 
         print("=" * 70)
-        print("FIRST FIVE FEATURES")
-        print("=" * 70)
-
-        for feature in training_result["feature_columns"][:5]:
-
-            print(feature)
-
-        print()
-
-        print("=" * 70)
-        print("MODEL OBJECT")
-        print("=" * 70)
-
-        print(training_result["model"])
-
-        print()
-
-        print("=" * 70)
-        print("MODEL TRAINING COMPLETED SUCCESSFULLY")
+        print("MODEL TRAINER TEST PASSED")
         print("=" * 70)
 
     except Exception as error:
@@ -583,7 +786,7 @@ if __name__ == "__main__":
         print()
 
         print("=" * 70)
-        print("MODEL TRAINING FAILED")
+        print("MODEL TRAINER TEST FAILED")
         print("=" * 70)
 
         print(error)

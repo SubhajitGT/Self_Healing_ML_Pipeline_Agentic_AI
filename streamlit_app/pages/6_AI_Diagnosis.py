@@ -100,7 +100,7 @@ if st.button(
 
         orchestrator = AIOrchestrator()
 
-        ai_report = orchestrator.execute(
+        ai_report = orchestrator.analyze(
 
             validation_report=validation_report,
 
@@ -144,7 +144,7 @@ if ai_report is not None:
 
         summary.get(
 
-            "executive_summary",
+            "summary",
 
             "No summary available."
 
