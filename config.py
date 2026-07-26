@@ -13,10 +13,16 @@ Author  : ChatGPT
 
 from pathlib import Path
 import logging
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
+import os
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
+
 
 # ==============================================================================
 # Project Information

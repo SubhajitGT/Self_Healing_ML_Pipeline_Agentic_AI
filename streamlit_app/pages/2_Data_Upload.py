@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+import traceback
 
 from utils.session import initialize_session_state
 
@@ -113,13 +114,11 @@ if uploaded_file is not None:
 
         )
 
-    except Exception as error:
+    except Exception:
 
-        st.error(
+        st.error("Unable to load dataset.")
 
-            f"Unable to load dataset.\n\n{error}"
-
-        )
+        st.code(traceback.format_exc())
 
 # ==============================================================================
 # Preview
