@@ -37,10 +37,25 @@ class ResponseParser:
         Return diagnosis section.
         """
 
-        return response.get(
-            "diagnosis",
-            {}
+        return {
+            "root_cause":
+            response.get(
+            "root_cause",
+            ""
+        ),
+        "business_impact":
+
+        response.get(
+            "business_impact",
+            ""
+        ),
+        "primary_evidence":
+
+        response.get(
+            "primary_evidence",
+            []
         )
+        }
 
     # ---------------------------------------------------------------------
 
@@ -67,10 +82,20 @@ class ResponseParser:
         Return retraining decision.
         """
 
-        return response.get(
-            "retraining",
-            {}
-        )
+        next_step = response.get(
+
+    "recommended_next_step",
+
+    ""
+
+    )
+        return {
+            "recommended_next_step": next_step,
+
+    "retrain_required":
+
+        next_step.lower() == "retrain model"
+        }
 
     # ---------------------------------------------------------------------
 
@@ -91,12 +116,23 @@ class ResponseParser:
                     ""
                 ),
 
+            "business_impact":
+
+    response.get(
+
+        "business_impact",
+
+        ""
+
+    ),
+
             "severity":
 
                 response.get(
                     "severity",
                     "UNKNOWN"
                 ),
+                
 
             "confidence":
 
@@ -116,6 +152,36 @@ class ResponseParser:
         """
         Parse complete response.
         """
+
+        required_fields = [
+
+    "summary",
+
+    "root_cause",
+
+    "severity",
+
+    "confidence"
+
+]
+
+        missing = [
+
+            field
+
+            for field in required_fields
+
+            if field not in response
+
+        ]
+
+        if missing:
+
+            raise ValueError(
+
+                f"Missing required Gemini response fields: {missing}"
+
+            )
 
         return {
 
@@ -151,44 +217,27 @@ if __name__ == "__main__":
 
     sample = {
 
-        "summary":
-            "Moderate Drift",
+    "summary": "Moderate drift detected.",
 
-        "severity":
-            "HIGH",
+    "root_cause": "Sales distribution shifted.",
 
-        "confidence":
-            0.96,
+    "business_impact": "Prediction accuracy may decrease.",
 
-        "diagnosis": {
+    "severity": "HIGH",
 
-            "root_cause":
-                "Sales distribution shifted."
+    "confidence": 0.96,
 
-        },
+    "primary_evidence": [
 
-        "recommendations": {
+        "High PSI",
 
-            "actions": [
+        "RMSE increased"
 
-                "Retrain model",
+    ],
 
-                "Update reference dataset"
+    "recommended_next_step": "Retrain Model"
 
-            ]
-
-        },
-
-        "retraining": {
-
-            "required": True,
-
-            "priority": "HIGH"
-
-        }
-
-    }
-
+}
     parsed = parser.parse(sample)
 
     from pprint import pprint

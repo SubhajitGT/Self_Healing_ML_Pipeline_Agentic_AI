@@ -32,7 +32,6 @@ if str(PROJECT_ROOT) not in sys.path:
 import config
 
 from agents.diagnosis_agent import DiagnosisAgent
-from agents.response_parser import ResponseParser
 
 # ==============================================================================
 # Logging
@@ -73,7 +72,6 @@ class AIOrchestrator:
 
         self.agent = DiagnosisAgent()
 
-        self.parser = ResponseParser()
 
     # ---------------------------------------------------------------------
 
@@ -91,6 +89,30 @@ class AIOrchestrator:
         logger.info("Starting AI Analysis")
         logger.info("=" * 60)
 
+        if not validation_report:
+
+            raise ValueError(
+
+        "Validation report cannot be empty."
+
+    )
+
+        if not drift_report:
+
+            raise ValueError(
+
+        "Drift report cannot be empty."
+
+    )
+
+        if not performance_report:
+
+            raise ValueError(
+
+        "Performance report cannot be empty."
+
+    )
+
         ai_response = self.agent.diagnose(
 
             validation_report,
@@ -101,19 +123,22 @@ class AIOrchestrator:
 
         )
 
-        parsed = self.parser.parse(
+        if "error" in ai_response:
 
-            ai_response
+            logger.error(
 
-        )
+        ai_response["error"]
+
+    )
+
+            return ai_response
 
         logger.info(
 
             "AI analysis completed."
 
         )
-
-        return parsed
+        return ai_response
 
     # ---------------------------------------------------------------------
 
@@ -124,7 +149,19 @@ class AIOrchestrator:
         """
         Pretty print AI report.
         """
+        if "error" in report:
 
+            print()
+
+            print("=" * 70)
+
+            print("AI ERROR")
+
+            print("=" * 70)
+
+            print(report["error"])
+
+            return
         print()
 
         print("=" * 70)
@@ -179,7 +216,7 @@ class AIOrchestrator:
 
             actions = recommendations.get(
 
-                "actions",
+                "recommendations",
 
                 []
 

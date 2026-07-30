@@ -118,13 +118,26 @@ class GeminiClient:
 
         logger.info("=" * 60)
 
-        response = self.client.models.generate_content(
+        try:
+            response = self.client.models.generate_content(
 
             model=self.model,
 
-            contents=prompt
+            contents=prompt,
+            config={
+        "response_mime_type": "application/json",
+        "temperature": 0.2
+    }
 
         )
+        except Exception as error:
+            logger.exception(error)
+
+            raise RuntimeError(
+
+        f"Gemini request failed: {error}"
+
+    )
 
         text = response.text
 
@@ -162,6 +175,19 @@ class GeminiClient:
 
         try:
 
+            cleaned = response_text.strip()
+
+            if cleaned.startswith("```json"):
+                cleaned = cleaned[7:]
+
+            if cleaned.startswith("```"):
+                cleaned = cleaned[3:]
+
+            if cleaned.endswith("```"):
+                cleaned = cleaned[:-3]
+
+            cleaned = cleaned.strip()
+
             return json.loads(
 
                 response_text
@@ -177,6 +203,9 @@ class GeminiClient:
             )
 
             return {
+                "success": False,
+
+    "error": "Invalid JSON returned by Gemini",
 
                 "raw_response": response_text
 

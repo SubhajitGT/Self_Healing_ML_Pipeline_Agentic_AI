@@ -89,26 +89,58 @@ PERFORMANCE REPORT
 {json.dumps(performance_report, indent=4)}
 
 ==================================================
-
 Instructions
 
-1. Analyze every report.
+You are acting as the AI Diagnosis Agent of a Self-Healing Machine Learning Pipeline.
 
-2. Identify possible root causes.
+Think step-by-step internally before answering, but DO NOT expose your reasoning process.
 
-3. Explain business impact.
+Your task is to:
 
-4. Estimate severity.
+1. Analyze the validation report first.
+   - Determine whether the incoming dataset is structurally valid.
+   - Identify missing columns, schema issues, duplicate rows or excessive missing values.
 
-5. Estimate confidence.
+2. Analyze the drift report.
+   - Determine whether statistical drift exists.
+   - Consider PSI values, drift score, affected columns and overall severity.
 
-IMPORTANT
+3. Analyze the performance report.
+   - Determine whether model performance has degraded.
+   - Compare MAE, RMSE and R² changes.
+   - Determine whether degradation is significant.
 
-Return ONLY valid JSON.
+4. Correlate all three reports together.
 
-Do not return markdown.
+Never make a conclusion from a single report if the other reports contradict it.
 
-Do not explain outside JSON.
+For example:
+
+• Validation PASS + High Drift + Performance Healthy
+→ Data has changed but model is still stable.
+
+• Validation PASS + High Drift + Performance Critical
+→ Drift is probably affecting model quality.
+
+• Validation FAIL
+→ Data quality issue has highest priority.
+
+5. Determine the SINGLE most probable root cause.
+
+6. Estimate confidence between 0.0 and 1.0.
+
+Confidence should reflect how strongly the reports support the diagnosis.
+
+7. Keep the business impact concise.
+
+Rules
+
+- Do not invent information.
+- Use only the supplied reports.
+- If evidence is insufficient, explicitly state that.
+- Return valid JSON only.
+- Do not include markdown.
+- Do not include explanations outside JSON.
 
 Return exactly this schema.
 
@@ -119,9 +151,13 @@ Return exactly this schema.
 
     "business_impact": "",
 
-    "severity": "",
+    "severity": "LOW | MEDIUM | HIGH | CRITICAL",
 
-    "confidence": 0.0
+    "confidence": 0.0,
+    "primary_evidence": [
+    ],
+
+    "recommended_next_step": ""
 }}
 """
 
@@ -140,7 +176,22 @@ Return exactly this schema.
         prompt = f"""
 You are an expert MLOps Engineer.
 
-Based on the diagnosis below, provide actionable recommendations.
+Based only on the diagnosis below, recommend operational actions.
+
+Prioritize actions that minimize business risk.
+
+Possible actions include:
+
+- Continue Monitoring
+- Clean Dataset
+- Reject Dataset
+- Retrain Model
+- Roll Back Previous Model
+- Request Human Review
+
+Do not recommend actions that are unsupported by the diagnosis.
+
+Return valid JSON only.
 
 Diagnosis
 
@@ -157,6 +208,10 @@ Use this schema.
 
     ],
 
+    "primary_action": "",
+
+    "human_intervention_required": false,
+    
     "retrain_required": false,
 
     "priority": "",

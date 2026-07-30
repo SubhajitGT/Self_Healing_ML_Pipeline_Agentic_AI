@@ -32,6 +32,7 @@ if str(PROJECT_ROOT) not in sys.path:
 import config
 
 from agents.gemini_client import GeminiClient
+from agents.response_parser import ResponseParser
 from agents.prompt_builder import PromptBuilder
 
 # ==============================================================================
@@ -75,6 +76,8 @@ class DiagnosisAgent:
 
         self.gemini = GeminiClient()
 
+        self.parser = ResponseParser()
+
     # -------------------------------------------------------------------------
 
     def diagnose(
@@ -105,6 +108,29 @@ class DiagnosisAgent:
 
         logger.info("=" * 60)
 
+        if not validation_report:
+
+            raise ValueError(
+
+        "Validation report is empty."
+
+    )
+
+        if not drift_report:
+
+            raise ValueError(
+
+        "Drift report is empty."
+
+    )
+
+        if not performance_report:
+
+            raise ValueError(
+
+        "Performance report is empty."
+
+    )
         prompt = self.prompt_builder.build_diagnosis_prompt(
 
             validation_report,
@@ -115,9 +141,20 @@ class DiagnosisAgent:
 
         )
 
-        diagnosis = self.gemini.generate_json_response(
+        response = self.gemini.generate_json_response(
 
-            prompt
+    prompt
+
+)       
+        if response.get("success") is False:
+
+            logger.error(response["error"])
+
+            return response
+
+        diagnosis = self.parser.parse(
+
+            response
 
         )
 
