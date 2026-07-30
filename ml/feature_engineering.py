@@ -72,42 +72,7 @@ class FeatureEngineer:
     # -------------------------------------------------------------------------
 
     def __init__(self):
-
-        self.required_columns: List[str] = [
-
-            "Transaction_ID",
-
-            "Transaction_Date",
-
-            "Store_ID",
-
-            "Region",
-
-            "Product_Category",
-
-            "Product_ID",
-
-            "Price",
-
-            "Discount",
-
-            "Marketing_Spend",
-
-            "Competitor_Price",
-
-            "Inventory_Level",
-
-            "Temperature",
-
-            "Holiday",
-
-            "Weekend",
-
-            "Customer_Footfall",
-
-            config.TARGET_COLUMN
-
-        ]
+        self.required_columns = config.REQUIRED_COLUMNS
 
         self.metadata: Dict = {
 
@@ -304,13 +269,13 @@ class FeatureEngineer:
 
         dataframe["Transaction_Date"] = pd.to_datetime(
 
-            dataframe["Transaction_Date"],
+            dataframe[config.DATE_COLUMN],
 
             errors="coerce"
 
         )
 
-        invalid_dates = dataframe["Transaction_Date"].isna().sum()
+        invalid_dates = dataframe[config.DATE_COLUMN].isna().sum()
 
         if invalid_dates > 0:
 
@@ -323,7 +288,7 @@ class FeatureEngineer:
             )
 
             dataframe["Transaction_Date"] = dataframe[
-                "Transaction_Date"
+                config.DATE_COLUMN
             ].ffill()
 
         logger.info("Datetime conversion completed.")
@@ -351,23 +316,23 @@ class FeatureEngineer:
 
         logger.info("Creating date features...")
 
-        dataframe["Year"] = dataframe["Transaction_Date"].dt.year
+        dataframe["Year"] = dataframe[config.DATE_COLUMN].dt.year
 
-        dataframe["Month"] = dataframe["Transaction_Date"].dt.month
+        dataframe["Month"] = dataframe[config.DATE_COLUMN].dt.month
 
-        dataframe["Day"] = dataframe["Transaction_Date"].dt.day
+        dataframe["Day"] = dataframe[config.DATE_COLUMN].dt.day
 
         dataframe["DayOfWeek"] = (
-            dataframe["Transaction_Date"]
+            dataframe[config.DATE_COLUMN]
             .dt.dayofweek
         )
 
         dataframe["Quarter"] = (
-            dataframe["Transaction_Date"]
+            dataframe[config.DATE_COLUMN]
             .dt.quarter
         )
         dataframe.drop(
-    columns=["Transaction_Date"],
+    columns=[config.DATE_COLUMN],
     inplace=True,
     errors="ignore"
     )
@@ -422,13 +387,7 @@ class FeatureEngineer:
 
         dataframe = self.create_date_features(dataframe)
 
-        categorical_columns = [
-
-    "Region",
-
-    "Product_Category"
-
-        ]
+        categorical_columns = config.CATEGORICAL_COLUMNS
 
         self.metadata["categorical_columns_detected"] = sum(
 

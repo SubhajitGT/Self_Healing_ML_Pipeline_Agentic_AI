@@ -26,6 +26,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
+from datetime import datetime
 
 # ==============================================================================
 # Add Project Root
@@ -461,7 +462,16 @@ class ModelTrainer:
 
             "model_name":
 
-                "GradientBoostingPipeline",
+                config.MODEL_NAME,
+            
+            "model_version":
+    config.DEFAULT_MODEL_VERSION,
+
+            "model_file":
+    config.MODEL_FILE_NAME,
+    
+            "training_timestamp":
+    datetime.now().isoformat(),
 
             "hyperparameters": {
 

@@ -16,7 +16,6 @@ from __future__ import annotations
 import logging
 import sys
 from pathlib import Path
-from datetime import datetime
 
 import joblib
 from sklearn.pipeline import Pipeline
@@ -142,7 +141,7 @@ class ModelManager:
 
         if version is None:
 
-            version = 1
+            version = config.DEFAULT_MODEL_VERSION
 
         model_name = f"sales_forecaster_v{version}.pkl"
 
@@ -254,7 +253,10 @@ class ModelManager:
         version : int
         """
 
-        model_name = f"sales_forecaster_v{version}.pkl"
+        model_name = (
+    f"{config.MODEL_NAME}_v{version}"
+    f"{config.MODEL_EXTENSION}"
+)
 
         model_path = self.model_directory / model_name
 
@@ -358,7 +360,7 @@ if __name__ == "__main__":
 
         loaded_model = manager.load_model(
 
-            version=1
+            version=config.DEFAULT_MODEL_VERSION
 
         )
 

@@ -19,7 +19,6 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any
 
-import numpy as np
 import pandas as pd
 from sklearn.pipeline import Pipeline
 
@@ -275,7 +274,7 @@ class Predictor:
     def predict_using_saved_model(
         self,
         dataframe: pd.DataFrame,
-        version: int = 1
+        version: int = config.DEFAULT_MODEL_VERSION
     ) -> Dict[str, Any]:
         """
         Load a saved model and predict.
@@ -401,7 +400,7 @@ if __name__ == "__main__":
 
             model,
 
-            version=1
+            version=config.DEFAULT_MODEL_VERSION
 
         )
 
@@ -415,7 +414,8 @@ if __name__ == "__main__":
 
             X_test,
 
-            version=1
+            version=config.DEFAULT_MODEL_VERSION
+
 
         )
 

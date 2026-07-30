@@ -459,6 +459,7 @@ MODEL_EXTENSION = ".pkl"
 DEFAULT_MODEL_VERSION = 1
 
 MODEL_FILE_NAME = f"{MODEL_NAME}_v{DEFAULT_MODEL_VERSION}{MODEL_EXTENSION}"
+MODEL_METADATA_NAME = f"{MODEL_NAME}_metadata.json"
 
 # ==============================================================================
 # Model Evaluation
@@ -579,11 +580,10 @@ VALIDATION_HISTORY_TABLE = "validation_history"
 
 # Random
 
-DEFAULT_RANDOM_SEED = RANDOM_SEED
 
 # Dataset
 
-DEFAULT_SAMPLE_ROWS = DEFAULT_ROWS
+
 
 # SQLite
 
@@ -596,3 +596,10 @@ MODEL_PATH = SAVED_MODEL_DIR
 # Output
 
 REPORTS_DIR = REPORT_DIRECTORY
+
+
+SUPPORTED_MODELS = [
+
+    "GradientBoostingRegressor"
+
+]
