@@ -147,6 +147,29 @@ class HistoryManager:
             "Saving execution history..."
         )
 
+        required_keys = {
+
+    "timestamp",
+
+    "decision",
+
+    "promoted",
+
+    "old_version",
+
+    "new_version"
+
+}
+
+        missing = required_keys - execution.keys()
+
+        if missing:
+
+            raise ValueError(
+
+        f"Execution missing keys: {missing}"
+
+    )
         connection = self.connect()
 
         cursor = connection.cursor()
@@ -241,6 +264,15 @@ class HistoryManager:
 
         ]
 
+        for record in history:
+
+            record["candidate_metrics"] = json.loads(
+            record["candidate_metrics"]
+    )
+
+            record["production_metrics"] = json.loads(
+            record["production_metrics"]
+    )
         return history
     
     # -------------------------------------------------------------------------

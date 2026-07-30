@@ -135,7 +135,7 @@ class RetrainingEngine:
 
         )
 
-        return processed_df
+        return processed_df, metadata
 
     # -------------------------------------------------------------------------
 
@@ -234,13 +234,29 @@ class RetrainingEngine:
         logger.info("Starting Self-Healing Retraining")
         logger.info("=" * 60)
 
+        if dataframe is None:
+
+            raise ValueError(
+
+        "Input dataframe cannot be None."
+
+            )
+
+        if dataframe.empty:
+
+            raise ValueError(
+
+        "Input dataframe is empty."
+
+        )
+
         start_time = time.time()
 
         # ---------------------------------------------------------
         # Prepare Dataset
         # ---------------------------------------------------------
 
-        processed_df = self.prepare_dataset(
+        processed_df, metadata = self.prepare_dataset(
 
             dataframe
 
@@ -256,6 +272,13 @@ class RetrainingEngine:
 
         )
 
+        if "model" not in training_result:
+
+            raise ValueError(
+
+        "Trainer did not return a candidate model."
+
+    )
         # ---------------------------------------------------------
         # Evaluate Candidate
         # ---------------------------------------------------------
@@ -266,6 +289,25 @@ class RetrainingEngine:
 
         )
 
+        required_metrics = {
+
+    "mae",
+
+    "rmse",
+
+    "r2"
+
+}
+
+        missing = required_metrics - metrics.keys()
+
+        if missing:
+
+            raise ValueError(
+
+        f"Missing evaluation metrics: {missing}"
+
+    )
         # ---------------------------------------------------------
         # Training Summary
         # ---------------------------------------------------------
@@ -314,7 +356,9 @@ class RetrainingEngine:
 
             "training_summary":
 
-                summary
+                summary,
+
+            "feature_metadata": metadata
 
         }
     

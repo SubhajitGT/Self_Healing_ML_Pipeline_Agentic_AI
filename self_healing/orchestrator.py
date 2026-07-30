@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import Dict
 
 import pandas as pd
+from datetime import datetime
+
 
 # ==============================================================================
 # Add Project Root
@@ -108,6 +110,30 @@ class SelfHealingOrchestrator:
         logger.info("Starting Self-Healing Workflow")
         logger.info("=" * 60)
 
+        if dataframe is None:
+
+            raise ValueError(
+
+        "Dataframe cannot be None."
+
+    )
+
+        if ai_report is None:
+
+            raise ValueError(
+
+        "AI report cannot be None."
+
+    )
+
+        if production_metrics is None:
+
+            raise ValueError(
+
+        "Production metrics cannot be None."
+
+    )
+
         decision_report = self.decision_engine.execute(
 
             ai_report
@@ -126,9 +152,27 @@ class SelfHealingOrchestrator:
 
             )
 
+            execution_report = {
+
+    "timestamp": datetime.now().isoformat(),
+
+    "decision": decision_report["decision"],
+
+    "promoted": False,
+
+    "old_version": current_version,
+
+    "new_version": current_version,
+
+    "candidate_metrics": {},
+
+    "production_metrics": production_metrics
+
+}
+
             self.history_manager.save_execution(
 
-                decision_report
+                execution_report
 
             )
 
@@ -168,10 +212,19 @@ class SelfHealingOrchestrator:
 
         execution_report = {
 
-            **decision_report,
+            "timestamp": datetime.now().isoformat(),
 
-            **promotion
+    "decision": decision_report["decision"],
 
+    "promoted": promotion["promoted"],
+
+    "old_version": promotion["old_version"],
+
+    "new_version": promotion["new_version"],
+
+    "candidate_metrics": promotion["candidate_metrics"],
+
+    "production_metrics": promotion["production_metrics"]
         }
 
         self.history_manager.save_execution(
@@ -230,9 +283,22 @@ if __name__ == "__main__":
 
             "summary": {
 
-                "severity": "HIGH"
+                "severity": "Moderate drift detected.",
+                "severity": "HIGH",
+                "confidence": 0.96
 
             },
+            "diagnosis": {
+
+        "root_cause": "Sales distribution shifted."
+
+    },
+
+    "recommendations": [
+
+        "Retrain Model"
+
+    ],
 
             "retraining": {
 

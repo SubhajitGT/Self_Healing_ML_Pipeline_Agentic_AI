@@ -152,7 +152,7 @@ class DecisionEngine:
 
         return retraining.get(
 
-            "required",
+            "retrain_required",
 
             False
 
@@ -288,6 +288,23 @@ class DecisionEngine:
 
         }
 
+        valid_actions = {
+
+    "KEEP_MODEL",
+
+    "MONITOR",
+
+    "RETRAIN"
+
+}
+
+        if action not in valid_actions:
+
+            raise ValueError(
+
+        f"Invalid action: {action}"
+
+    )
         logger.info(
 
             "Decision : %s",
@@ -376,7 +393,7 @@ if __name__ == "__main__":
 
         "retraining": {
 
-            "required": True,
+            "retrain_required": True,
 
             "priority": "HIGH"
 

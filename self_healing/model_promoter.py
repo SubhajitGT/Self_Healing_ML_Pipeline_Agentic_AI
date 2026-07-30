@@ -69,7 +69,7 @@ class ModelPromoter:
 
     def __init__(self):
 
-        pass
+        self.model_manager = ModelManager()
 
     # -------------------------------------------------------------------------
 
@@ -240,6 +240,43 @@ class ModelPromoter:
         logger.info("Starting Model Promotion")
         logger.info("=" * 60)
 
+        required_keys = {
+
+    "candidate_model",
+
+    "candidate_metrics"
+
+}
+
+        missing = required_keys - candidate_package.keys()
+
+        if missing:
+
+            raise ValueError(
+
+        f"Candidate package missing keys: {missing}"
+
+    )
+
+        required_metrics = {
+
+    "mae",
+
+    "rmse",
+
+    "r2"
+
+}
+
+        missing = required_metrics - production_metrics.keys()
+
+        if missing:
+
+            raise ValueError(
+
+        f"Production metrics missing: {missing}"
+
+    )
         candidate_metrics = candidate_package[
             "candidate_metrics"
         ]
