@@ -274,6 +274,7 @@ class PerformanceMonitor:
         else:
 
             status = "CRITICAL"
+            severity = "HIGH"
 
         # ---------------------------------------------------------
         # Recommendation
@@ -297,9 +298,15 @@ class PerformanceMonitor:
 
             )
 
+        performance_degraded = status != "HEALTHY"
+
         report = {
 
             "status": status,
+
+            "severity": severity,
+
+            "performance_degraded": performance_degraded,
 
             "health_score": health_score,
 

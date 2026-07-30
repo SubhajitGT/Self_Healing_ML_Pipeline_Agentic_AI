@@ -501,6 +501,12 @@ MEAN_SHIFT_THRESHOLD = 0.15
 
 STD_SHIFT_THRESHOLD = 0.15
 
+HIGH_DRIFT_SCORE = 20
+
+MEDIUM_DRIFT_SCORE = 10
+
+CATEGORY_DRIFT_SCORE = 5
+
 # ==============================================================================
 # Performance Monitoring
 # ==============================================================================
@@ -510,6 +516,12 @@ R2_WARNING_THRESHOLD = 0.85
 RMSE_WARNING_PERCENT = 20
 
 MAE_WARNING_PERCENT = 20
+
+VALIDATION_ERROR_PENALTY = 20
+
+VALIDATION_WARNING_PENALTY = 5
+
+MINIMUM_DATASET_ROWS = 100
 
 # ==============================================================================
 # Gemini Configuration

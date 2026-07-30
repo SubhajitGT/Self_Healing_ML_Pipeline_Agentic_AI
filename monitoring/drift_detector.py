@@ -477,11 +477,18 @@ class DriftDetector:
 
             if value["status"] == "HIGH":
 
-                drift_score += 20
+                drift_score += config.HIGH_DRIFT_SCORE
 
             elif value["status"] == "MEDIUM":
 
-                drift_score += 10
+                drift_score += config.MEDIUM_DRIFT_SCORE
+
+        for value in category_drift.values():
+
+            if value["count"] > 0:
+
+                drift_score += config.CATEGORY_DRIFT_SCORE
+
 
         drift_score = min(
 
@@ -503,9 +510,13 @@ class DriftDetector:
 
             overall = "HIGH"
 
+        drift_detected = overall != "LOW"
+
         return {
 
             "status": overall,
+
+            "drift_detected": drift_detected,
 
             "drift_score": drift_score,
 

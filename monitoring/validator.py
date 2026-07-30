@@ -397,6 +397,15 @@ class DatasetValidator:
 
         )
 
+        if len(dataframe) < config.MINIMUM_DATASET_ROWS:
+
+            warnings.append(
+
+                f"Dataset contains only {len(dataframe)} rows. "
+                f"Recommended minimum is {config.MINIMUM_DATASET_ROWS} rows."
+
+            )
+
         schema_result = self.validate_schema(
 
             dataframe
@@ -407,9 +416,15 @@ class DatasetValidator:
         # Health Score
         # ---------------------------------------------------------
 
-        health_score -= len(errors) * 20
+        health_score -= (
+    len(errors)
+    * config.VALIDATION_ERROR_PENALTY
+)
 
-        health_score -= len(warnings) * 5
+        health_score -= (
+    len(warnings)
+    * config.VALIDATION_WARNING_PENALTY
+)
 
         health_score = max(
 
@@ -421,14 +436,31 @@ class DatasetValidator:
 
         status = "PASS"
 
-        if len(errors) > 0:
+        if errors:
 
             status = "FAIL"
+
+# ---------------------------------------------------------
+# Severity
+# ---------------------------------------------------------
+
+        if status == "FAIL":
+
+            severity = "HIGH"
+
+        elif health_score >= 90:
+
+            severity = "LOW"
+
+        else:
+
+            severity = "MEDIUM"
 
         report = {
 
             "status": status,
 
+            "severity": severity,
             "health_score": health_score,
 
             "errors": errors,
