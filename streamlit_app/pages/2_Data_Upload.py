@@ -18,11 +18,14 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
-import traceback
 
-from utils.session import initialize_session_state
+from utils.session_manager import initialize_session
+from utils.workflow_manager import set_current_stage
+from utils.ui_components import page_header, page_footer
+from utils.error_handler import show_error
 
-initialize_session_state()
+initialize_session()
+set_current_stage("UPLOAD")
 
 # ==============================================================================
 # Add Project Root
@@ -45,9 +48,10 @@ st.set_page_config(
 
 )
 
-st.title("📂 Upload Dataset")
-
-st.markdown("---")
+page_header(
+    "📂 Upload Dataset",
+    "Upload a CSV or Excel dataset."
+)
 
 # ==============================================================================
 # File Upload
@@ -85,48 +89,45 @@ if uploaded_file is not None:
 
             )
 
-        st.session_state.uploaded_dataframe = dataframe
+        st.session_state.uploaded_df = dataframe
+        st.session_state.uploaded_filename = uploaded_file.name
         # Reset downstream state
 
-        keys = [
+        from utils.session_manager import reset_workflow
 
-    "validation_report",
+        reset_workflow()
 
-    "prediction_result",
-
-    "drift_report",
-
-    "performance_report",
-
-    "ai_report",
-
-    "self_healing_report"
-
-]
-
-        for key in keys:
-
-            st.session_state[key] = None
-
+        st.session_state.uploaded_df = dataframe
+        st.session_state.uploaded_filename = uploaded_file.name
         st.success(
 
             "Dataset uploaded successfully."
 
         )
+        st.info(
+    f"""
+Filename : {uploaded_file.name}
 
-    except Exception:
+Rows : {len(dataframe)}
 
-        st.error("Unable to load dataset.")
+Columns : {len(dataframe.columns)}
+"""
+)
 
-        st.code(traceback.format_exc())
+    except Exception as exception:
+
+        show_error(
+        exception,
+        show_traceback=True
+    )
 
 # ==============================================================================
 # Preview
 # ==============================================================================
 
-if st.session_state.uploaded_dataframe is not None:
+if st.session_state.uploaded_df is not None:
 
-    dataframe = st.session_state.uploaded_dataframe
+    dataframe = st.session_state.uploaded_df
 
     st.subheader("Dataset Preview")
 
@@ -205,3 +206,4 @@ if st.session_state.uploaded_dataframe is not None:
         use_container_width=True
 
     )
+    page_footer()

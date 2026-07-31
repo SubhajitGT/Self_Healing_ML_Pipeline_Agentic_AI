@@ -30,15 +30,22 @@ if str(PROJECT_ROOT) not in sys.path:
 
 # ==============================================================================
 
-from monitoring.validator import DatasetValidator
 from monitoring.drift_detector import DriftDetector
 from monitoring.performance_monitor import PerformanceMonitor
 
 from data.generator import SalesDataGenerator
 
-from utils.session import initialize_session_state
+from utils.session_manager import initialize_session
+from utils.workflow_manager import set_current_stage
+from utils.page_guard import guard_monitoring
+from utils.ui_components import page_header, page_footer
+from utils.error_handler import show_error
 
-initialize_session_state()
+initialize_session()
+
+guard_monitoring()
+
+set_current_stage("MONITORING")
 
 # ==============================================================================
 # Page Configuration
@@ -54,29 +61,15 @@ st.set_page_config(
 
 )
 
-st.title("📊 Monitoring Dashboard")
-
-st.markdown("---")
+page_header(
+    "📊 Monitoring Dashboard",
+    "Monitor dataset quality, drift and production model health."
+)
 
 # ==============================================================================
 # Dataset Check
 # ==============================================================================
-
-current_df = st.session_state.get(
-
-    "uploaded_dataframe"
-
-)
-
-if current_df is None:
-
-    st.warning(
-
-        "Please upload a dataset first."
-
-    )
-
-    st.stop()
+current_df = st.session_state.validated_df
 
 # ==============================================================================
 # Run Monitoring
@@ -96,7 +89,6 @@ if st.button(
 
     ):
 
-        validator = DatasetValidator()
 
         drift_detector = DriftDetector()
 
@@ -106,11 +98,7 @@ if st.button(
         # Validation
         # ---------------------------------------------------------
 
-        validation_report = validator.validate(
-
-            current_df
-
-        )
+        validation_report = st.session_state.validation_report
 
         # ---------------------------------------------------------
         # Generate Reference Dataset
@@ -180,6 +168,15 @@ if st.button(
         st.session_state.drift_report = drift_report
 
         st.session_state.performance_report = performance_report
+        st.session_state.monitoring_report = {
+
+    "validation": validation_report,
+
+    "drift": drift_report,
+
+    "performance": performance_report
+
+}
 
     st.success(
 
@@ -242,7 +239,8 @@ if validation_report is not None:
 
     st.json(
 
-        validation_report
+        validation_report,
+        expanded=True
 
     )
 
@@ -286,7 +284,8 @@ if drift_report is not None:
 
     st.json(
 
-        drift_report
+        drift_report,
+        expanded=True
 
     )
 
@@ -366,7 +365,8 @@ if performance_report is not None:
 
     st.json(
 
-        performance_report
+        performance_report,
+        expanded=True
 
     )
 
@@ -388,63 +388,16 @@ if (
 
     st.subheader("🟢 Overall Pipeline Health")
 
-    health_score = 100
-
-    if validation_report.get(
-
-        "status"
-
-    ) != "PASS":
-
-        health_score -= 30
-
-    if drift_report.get(
-
-        "drift_detected",
-
-        False
-
-    ):
-
-        health_score -= 40
-
-    performance_status = (
-
-        performance_report.get(
-
-            "status",
-
-            "UNKNOWN"
-
-        )
-
-    ).upper()
-
-    if performance_status != "HEALTHY":
-
-        health_score -= 30
-
-    health_score = max(
-
-        0,
-
-        health_score
-
-    )
+    health_score = performance_report["health_score"]
 
     st.progress(
-
-        health_score / 100
-
-    )
+    health_score / 100
+)
 
     st.metric(
-
-        "Health Score",
-
-        f"{health_score}%"
-
-    )
+    "Health Score",
+    f"{health_score}%"
+)
 
 # ==============================================================================
 # Download Report
@@ -460,21 +413,7 @@ if (
 
 ):
 
-    report = {
-
-        "validation":
-
-            validation_report,
-
-        "drift":
-
-            drift_report,
-
-        "performance":
-
-            performance_report
-
-    }
+    report = st.session_state.monitoring_report
 
     st.markdown("---")
 
@@ -491,3 +430,4 @@ if (
         use_container_width=True
 
     )
+    page_footer()

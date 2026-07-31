@@ -18,9 +18,9 @@ from pathlib import Path
 
 import streamlit as st
 
-from utils.session import initialize_session_state
+from utils.session_manager import initialize_session
 
-initialize_session_state()
+initialize_session()
 
 # ==============================================================================
 # Add Project Root
@@ -189,7 +189,7 @@ status = {
 
     "Self-Healing":"✅ Completed",
 
-    "Streamlit":"✅ In Progress"
+    "Streamlit":"✅ Completed"
 
 }
 

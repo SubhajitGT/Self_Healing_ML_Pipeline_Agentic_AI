@@ -615,3 +615,187 @@ SUPPORTED_MODELS = [
     "GradientBoostingRegressor"
 
 ]
+
+"""
+===============================================================================
+Dashboard Configuration
+===============================================================================
+"""
+
+# ==============================================================================
+# Application
+# ==============================================================================
+
+APP_NAME = "Self-Healing Agentic AI ML Pipeline"
+
+APP_VERSION = "1.0"
+
+PAGE_LAYOUT = "wide"
+
+PAGE_ICON = "🤖"
+
+# ==============================================================================
+# Upload Configuration
+# ==============================================================================
+
+SUPPORTED_FILE_TYPES = [
+
+    "csv",
+
+    "xlsx"
+
+]
+
+MAX_UPLOAD_SIZE_MB = 200
+
+# ==============================================================================
+# Workflow Stages
+# ==============================================================================
+
+WORKFLOW_STAGES = (
+
+    "HOME",
+
+    "UPLOAD",
+
+    "VALIDATION",
+
+    "EXPLORER",
+
+    "MONITORING",
+
+    "AI_DIAGNOSIS",
+
+    "SELF_HEALING",
+
+    "MODEL_EVOLUTION",
+
+    "PREDICTION",
+
+    "HISTORY"
+
+)
+
+# ==============================================================================
+# Workflow Progress
+# ==============================================================================
+
+WORKFLOW_PROGRESS = {
+
+    "HOME": 0,
+
+    "UPLOAD": 10,
+
+    "VALIDATION": 20,
+
+    "EXPLORER": 35,
+
+    "MONITORING": 50,
+
+    "AI_DIAGNOSIS": 65,
+
+    "SELF_HEALING": 80,
+
+    "MODEL_EVOLUTION": 90,
+
+    "PREDICTION": 95,
+
+    "HISTORY": 100
+
+}
+
+# ==============================================================================
+# Model
+# ==============================================================================
+
+DEFAULT_MODEL_VERSION = 1
+
+MODEL_VERSION_PREFIX = "Version"
+
+# ==============================================================================
+# Session Keys
+# ==============================================================================
+
+SESSION_KEYS = (
+
+    "uploaded_df",
+
+    "validated_df",
+
+    "prediction_df",
+
+    "reference_df",
+
+    "validation_report",
+
+    "monitoring_report",
+
+    "ai_report",
+
+    "self_healing_result",
+
+    "prediction_result",
+
+    "execution_history",
+
+    "training_profile",
+
+    "retrained_profile",
+
+    "current_model_version",
+
+    "candidate_model_version",
+
+    "workflow_stage",
+
+    "workflow_completed",
+
+    "processing",
+
+    "last_error",
+
+    "uploaded_filename"
+
+)
+
+# ==============================================================================
+# Status Labels
+# ==============================================================================
+
+STATUS_HEALTHY = "Healthy"
+
+STATUS_READY = "Ready"
+
+STATUS_ENABLED = "Enabled"
+
+STATUS_COMPLETED = "Completed"
+
+STATUS_IN_PROGRESS = "In Progress"
+
+STATUS_FAILED = "Failed"
+
+# ==============================================================================
+# Dashboard Messages
+# ==============================================================================
+
+MSG_UPLOAD_FIRST = "Please upload a dataset first."
+
+MSG_VALIDATE_FIRST = "Please validate the uploaded dataset first."
+
+MSG_MONITORING_FIRST = "Please complete Monitoring before AI Diagnosis."
+
+MSG_AI_FIRST = "Please complete AI Diagnosis before Self-Healing."
+
+MSG_SELF_HEALING_FIRST = "Please complete Self-Healing before Model Evolution."
+
+MSG_PREDICTION_FIRST = "Please complete Validation before Prediction."
+
+MSG_HISTORY_EMPTY = "No execution history available."
+
+# ==============================================================================
+# Footer
+# ==============================================================================
+
+FOOTER_TEXT = (
+    "Self-Healing Agentic AI ML Pipeline | Version 1.0"
+)

@@ -19,9 +19,15 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from utils.session import initialize_session_state
+from utils.session_manager import initialize_session
+from utils.workflow_manager import set_current_stage
+from utils.page_guard import guard_validation
+from utils.ui_components import page_header, page_footer
+from utils.error_handler import show_error
 
-initialize_session_state()
+initialize_session()
+guard_validation()
+set_current_stage("VALIDATION")
 
 # ==============================================================================
 # Add Project Root
@@ -50,25 +56,18 @@ st.set_page_config(
 
 )
 
-st.title("✅ Dataset Validation")
-
-st.markdown("---")
+page_header(
+    "✅ Dataset Validation",
+    "Validate the uploaded dataset before monitoring."
+)
 
 # ==============================================================================
 # Check Dataset
 # ==============================================================================
 
-if st.session_state.uploaded_dataframe is None:
 
-    st.warning(
 
-        "Please upload a dataset first."
-
-    )
-
-    st.stop()
-
-dataframe = st.session_state.uploaded_dataframe
+dataframe = st.session_state.uploaded_df
 
 # ==============================================================================
 # Run Validation
@@ -88,23 +87,35 @@ if st.button(
 
     ):
 
-        validator = DatasetValidator()
+        try:
 
-        validation_report = validator.validate(
+            validator = DatasetValidator()
 
-            dataframe
+            validation_report = validator.validate(
 
-        )
+        dataframe
+
+    )
+            if validation_report.get("status") == "FAILED":
+
+                st.session_state.validated_df = None
+
+        except Exception as exception:
+
+            show_error(exception)
+
+            st.stop()
         
         st.session_state.validation_report = (
 
             validation_report
 
         )
+        st.session_state.validated_df = dataframe
 
     st.success(
 
-        "Validation completed successfully."
+        "Dataset validation completed successfully."
 
     )
 
@@ -117,6 +128,24 @@ if st.session_state.validation_report is not None:
     report = st.session_state.validation_report
 
     st.subheader("Validation Summary")
+
+    status = report.get("status", "UNKNOWN")
+
+    if status in ("PASS", "PASSED"):
+
+        st.success("Dataset passed validation.")
+
+    elif status.upper() == "WARNING":
+
+        st.warning("Dataset passed with warnings.")
+
+    elif status in ("FAIL", "FAILED"):
+
+        st.error("Dataset failed validation.")
+
+    else:
+
+        st.info(f"Validation status: {status}")
 
     col1, col2, col3 = st.columns(3)
 
@@ -164,7 +193,8 @@ if st.session_state.validation_report is not None:
 
     st.json(
 
-        report
+        report,
+        expanded=True
 
     )
 
@@ -191,3 +221,4 @@ if st.session_state.validation_report is not None:
         mime="text/plain"
 
     )
+    page_footer()
