@@ -94,7 +94,7 @@ if st.button(
 
     with st.spinner(
 
-        "Gemini is analysing the pipeline..."
+        "AI is analysing the pipeline..."
 
     ):
 

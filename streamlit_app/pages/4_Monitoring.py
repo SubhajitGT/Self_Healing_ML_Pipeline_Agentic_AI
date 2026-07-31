@@ -130,34 +130,9 @@ if st.button(
         # Later these will come from the production model
         # and current prediction evaluation.
         # ---------------------------------------------------------
-
-        previous_metrics = {
-
-            "mae": 10.20,
-
-            "rmse": 15.40,
-
-            "r2": 0.962
-
-        }
-
-        current_metrics = {
-
-            "mae": 12.75,
-
-            "rmse": 18.60,
-
-            "r2": 0.935
-
-        }
-
         performance_report = performance_monitor.monitor(
-
-            previous_metrics,
-
-            current_metrics
-
-        )
+    current_df
+)
 
         # ---------------------------------------------------------
         # Save Reports
@@ -305,13 +280,10 @@ if performance_report is not None:
 
     st.subheader("📈 Performance Monitoring")
 
-    summary = performance_report.get(
-
-        "summary",
-
-        {}
-
-    )
+    current_metrics = performance_report.get(
+    "current_metrics",
+    {}
+)
 
     col1, col2, col3 = st.columns(3)
 
@@ -321,9 +293,9 @@ if performance_report is not None:
 
             "MAE",
 
-            summary.get(
+            current_metrics.get(
 
-                "current_mae",
+                "mae",
 
                 "-"
 
@@ -337,9 +309,9 @@ if performance_report is not None:
 
             "RMSE",
 
-            summary.get(
+            current_metrics.get(
 
-                "current_rmse",
+                "rmse",
 
                 "-"
 
@@ -353,9 +325,9 @@ if performance_report is not None:
 
             "R²",
 
-            summary.get(
+            current_metrics.get(
 
-                "current_r2",
+                "r2",
 
                 "-"
 
@@ -387,6 +359,7 @@ if (
     st.markdown("---")
 
     st.subheader("🟢 Overall Pipeline Health")
+    
 
     health_score = performance_report["health_score"]
 

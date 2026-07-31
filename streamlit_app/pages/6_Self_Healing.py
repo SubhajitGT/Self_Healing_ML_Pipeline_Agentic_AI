@@ -87,6 +87,11 @@ if performance_report is None:
 
     st.stop()
 
+production = performance_report.get(
+    "previous_metrics",
+    {}
+)
+
 production_metrics = {
 
     "mae": performance_report.get("mae", 0),

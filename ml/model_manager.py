@@ -19,6 +19,7 @@ from pathlib import Path
 
 import joblib
 from sklearn.pipeline import Pipeline
+import json
 # ==============================================================================
 # Add Project Root
 # ==============================================================================
@@ -277,6 +278,62 @@ class ModelManager:
             model_name
 
         )
+
+    def save_metrics(
+        self,
+        metrics: dict,
+        version: int = None
+    ):
+        """
+        Save evaluation metrics for a model.
+        """
+
+        if version is None:
+            version = config.DEFAULT_MODEL_VERSION
+
+        metrics_name = f"sales_forecaster_v{version}_metrics.json"
+
+        metrics_path = self.model_directory / metrics_name
+
+        with open(metrics_path, "w") as file:
+            json.dump(metrics, file, indent=4)
+
+        logger.info(
+            "Metrics saved : %s",
+            metrics_name
+        )
+
+        return metrics_path
+    
+    def load_metrics(
+    self,
+    version: int = None
+):
+        """
+        Load evaluation metrics for a model.
+        """
+
+        if version is None:
+            version = config.DEFAULT_MODEL_VERSION
+
+        metrics_name = f"sales_forecaster_v{version}_metrics.json"
+
+        metrics_path = self.model_directory / metrics_name
+
+        if not metrics_path.exists():
+            raise FileNotFoundError(
+                f"Metrics file not found : {metrics_path}"
+            )
+
+        with open(metrics_path, "r") as file:
+            metrics = json.load(file)
+
+        logger.info(
+            "Metrics loaded : %s",
+            metrics_name
+        )
+
+        return metrics
 
 # ==============================================================================
 # Standalone Testing

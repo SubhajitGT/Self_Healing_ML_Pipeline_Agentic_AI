@@ -17,6 +17,7 @@ import sys
 import logging
 from pathlib import Path
 from typing import Dict
+from ml.feature_engineering import FeatureEngineer
 
 # ==============================================================================
 # Add Project Root
@@ -30,6 +31,10 @@ if str(PROJECT_ROOT) not in sys.path:
 # ==============================================================================
 
 import config
+from ml.model_manager import ModelManager
+from ml.evaluator import ModelEvaluator
+
+import pandas as pd
 
 # ==============================================================================
 # Logging
@@ -73,6 +78,12 @@ class PerformanceMonitor:
         self.rmse_threshold = config.RMSE_WARNING_PERCENT
 
         self.mae_threshold = config.MAE_WARNING_PERCENT
+
+        self.model_manager = ModelManager()
+
+        self.evaluator = ModelEvaluator()
+
+        self.feature_engineer = FeatureEngineer()
 
     # -------------------------------------------------------------------------
 
@@ -229,7 +240,38 @@ class PerformanceMonitor:
         )
 
         return score
-    
+
+    def calculate_current_metrics(
+    self,
+    dataframe: pd.DataFrame
+) -> Dict:
+        """
+        Calculate current model metrics using
+        the production model.
+        """
+
+        dataframe, _ = self.feature_engineer.prepare_features(
+        dataframe
+    )
+
+        model = self.model_manager.load_model()
+
+        y_true = dataframe[config.TARGET_COLUMN]
+
+        X = dataframe.drop(
+            columns=[config.TARGET_COLUMN]
+        )
+
+        y_pred = model.predict(X)
+
+        training_result = {
+            "y_test": y_true,
+            "y_pred": y_pred
+        }
+
+        return self.evaluator.evaluate(
+            training_result
+        )
     # -------------------------------------------------------------------------
 
     def generate_report(
@@ -266,10 +308,12 @@ class PerformanceMonitor:
         if health_score >= 90:
 
             status = "HEALTHY"
+            severity = "LOW"
 
         elif health_score >= 70:
 
             status = "WARNING"
+            severity = "MEDIUM"
 
         else:
 
@@ -332,20 +376,34 @@ class PerformanceMonitor:
 
     def monitor(
         self,
-        previous_metrics: Dict,
-        current_metrics: Dict
+        dataframe: pd.DataFrame
     ) -> Dict:
         """
-        Public monitoring method.
-        """
+    Monitor production model performance.
+    """
 
-        return self.generate_report(
+        previous_metrics = self.model_manager.load_metrics()
 
-            previous_metrics,
+        print("\n========== PREVIOUS METRICS ==========")
+        print(previous_metrics)
 
-            current_metrics
-
+        current_metrics = self.calculate_current_metrics(
+            dataframe
         )
+
+        print("\n========== CURRENT METRICS ==========")
+        print(current_metrics)
+
+        report = self.generate_report(
+            previous_metrics,
+            current_metrics
+        )
+
+        print("\n========== PERFORMANCE REPORT ==========")
+        print(report)
+
+        return report
+            
     
 # ==============================================================================
 # Standalone Testing
@@ -379,16 +437,14 @@ if __name__ == "__main__":
 
         }
 
+        from data.generator import SalesDataGenerator
+
+        generator = SalesDataGenerator(rows=1000)
+        dataframe = generator.generate_dataset()
+
         monitor = PerformanceMonitor()
 
-        report = monitor.monitor(
-
-            previous_metrics,
-
-            current_metrics
-
-        )
-
+        report = monitor.monitor(dataframe)
         print()
 
         print("=" * 70)

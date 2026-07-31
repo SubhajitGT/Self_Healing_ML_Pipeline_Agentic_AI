@@ -313,6 +313,11 @@ class ModelPromoter:
 
             )
 
+            self.model_manager.save_metrics(
+    candidate_package["candidate_metrics"],
+    version=new_version
+)
+
         return {
 
             "promoted": promoted,
@@ -377,12 +382,10 @@ if __name__ == "__main__":
 
         production_metrics = {
 
-            "mae": 20.5,
-
-            "rmse": 30.8,
-
-            "r2": 0.88
-
+            "mae": 100.0,
+    "rmse": 120.0,
+    "r2": 0.50
+    
         }
 
         # ---------------------------------------------------------

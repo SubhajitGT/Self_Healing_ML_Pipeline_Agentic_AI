@@ -19,6 +19,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 import traceback
+import config
 
 # ==============================================================================
 # Add Project Root
@@ -165,7 +166,7 @@ if st.button(
 
             processed_df,
 
-            version=1
+            version=config.DEFAULT_MODEL_VERSION
 
         )
 

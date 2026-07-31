@@ -8,8 +8,5 @@ logs/
 
 # Models
 
-models/
 
-*.joblib
 
-*.pkl
