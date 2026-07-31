@@ -133,6 +133,7 @@ if st.button(
         performance_report = performance_monitor.monitor(
     current_df
 )
+        
 
         # ---------------------------------------------------------
         # Save Reports

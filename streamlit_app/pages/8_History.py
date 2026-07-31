@@ -128,6 +128,7 @@ if selected_action != "All":
         filtered_df["action"] == selected_action
 
     ]
+filtered_df = filtered_df.reset_index(drop=True)
 
 # ==============================================================================
 # Summary
@@ -235,7 +236,7 @@ selected_index = st.selectbox(
 
     "Select Execution",
 
-    filtered_df.index,
+    range(len(filtered_df)),
 
     format_func=lambda idx:
         filtered_df.loc[idx, "timestamp"]

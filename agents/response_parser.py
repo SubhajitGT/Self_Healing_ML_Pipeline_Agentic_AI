@@ -69,7 +69,7 @@ class ResponseParser:
 
         return response.get(
             "recommendations",
-            {}
+            []
         )
 
     # ---------------------------------------------------------------------
@@ -82,19 +82,15 @@ class ResponseParser:
         Return retraining decision.
         """
 
-        next_step = response.get(
+        
 
-    "recommended_next_step",
-
-    ""
-
-    )
+    
         return {
-            "recommended_next_step": next_step,
+            "recommended_next_step": response.get("recommended_next_step", ""),
 
     "retrain_required":
 
-        next_step.lower() == "retrain model"
+        response.get("retrain_required", False)
         }
 
     # ---------------------------------------------------------------------

@@ -157,7 +157,9 @@ Return exactly this schema.
     "primary_evidence": [
     ],
 
-    "recommended_next_step": ""
+    "recommended_next_step": "",
+    "retrain_required": false,
+    "recommendations": []
 }}
 """
 
@@ -211,7 +213,7 @@ Use this schema.
     "primary_action": "",
 
     "human_intervention_required": false,
-    
+
     "retrain_required": false,
 
     "priority": "",

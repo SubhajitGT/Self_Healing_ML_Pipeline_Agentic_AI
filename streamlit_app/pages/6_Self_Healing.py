@@ -30,9 +30,17 @@ if str(PROJECT_ROOT) not in sys.path:
 # ==============================================================================
 
 
-from utils.session import initialize_session_state
+from utils.session_manager import initialize_session
+from utils.workflow_manager import set_current_stage
+from utils.page_guard import guard_self_healing
+from utils.ui_components import page_header, page_footer
+from utils.error_handler import show_error
 
-initialize_session_state()
+initialize_session()
+
+guard_self_healing()
+
+set_current_stage("SELF_HEALING")
 
 from self_healing.orchestrator import SelfHealingOrchestrator
 # ==============================================================================
@@ -49,15 +57,16 @@ st.set_page_config(
 
 )
 
-st.title("⚙️ Self-Healing")
-
-st.markdown("---")
+page_header(
+    "⚙️ Self-Healing",
+    "Automatically retrain and promote production models."
+)
 
 # ==============================================================================
 # Check Required Data
 # ==============================================================================
 
-dataframe = st.session_state.get("uploaded_dataframe")
+dataframe = st.session_state.get("uploaded_df")
 
 ai_report = st.session_state.get("ai_report")
 
@@ -94,11 +103,11 @@ production = performance_report.get(
 
 production_metrics = {
 
-    "mae": performance_report.get("mae", 0),
+    "mae": production.get("mae", 0),
 
-    "rmse": performance_report.get("rmse", 0),
+    "rmse": production.get("rmse", 0),
 
-    "r2": performance_report.get("r2", 0)
+    "r2": production.get("r2", 0)
 
 }
 
@@ -385,3 +394,4 @@ if result is not None:
         mime="text/plain"
 
     )
+    page_footer()

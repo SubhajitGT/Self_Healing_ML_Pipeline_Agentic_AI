@@ -191,45 +191,32 @@ class PerformanceMonitor:
 
         score = 100
 
+        print("\n========== HEALTH DEBUG ==========")
+        print("MAE Threshold :", self.mae_threshold)
+        print("RMSE Threshold:", self.rmse_threshold)
+        print("Comparison    :", comparison)
+        print("Initial Score :", score)
+
         # ---------------------------------------------------------
         # MAE
         # ---------------------------------------------------------
 
         if comparison["mae_change"] > self.mae_threshold:
-
-            score -= 15
-
-        # ---------------------------------------------------------
-        # RMSE
-        # ---------------------------------------------------------
-
-        if comparison["rmse_change"] > self.rmse_threshold:
-
             score -= 20
 
-        # ---------------------------------------------------------
-        # R²
-        # ---------------------------------------------------------
+        if comparison["rmse_change"] > self.rmse_threshold:
+            score -= 20
 
-        if comparison["r2_change"] < 0:
+        if comparison["r2_change"] < -30:
+            score -= 20
 
-            score -= abs(
+        if comparison["r2_change"] < -15:
+            score -= 15
 
-                int(
+        if comparison["r2_change"] < -5:
+            score -= 10
 
-                    comparison["r2_change"]
-
-                )
-
-            )
-
-        score = max(
-
-            score,
-
-            0
-
-        )
+        score = max(score, 0)
 
         logger.info(
 
@@ -238,7 +225,8 @@ class PerformanceMonitor:
             score
 
         )
-
+        print("Final Score   :", score)
+        print("=================================\n")
         return score
 
     def calculate_current_metrics(

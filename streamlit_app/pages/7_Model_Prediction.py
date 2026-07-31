@@ -36,9 +36,17 @@ from ml.feature_engineering import FeatureEngineer
 from ml.model_manager import ModelManager
 from ml.predictor import Predictor
 
-from utils.session import initialize_session_state
+from utils.session_manager import initialize_session
+from utils.workflow_manager import set_current_stage
+from utils.page_guard import guard_prediction
+from utils.ui_components import page_header, page_footer
+from utils.error_handler import show_error
 
-initialize_session_state()
+initialize_session()
+
+guard_prediction()
+
+set_current_stage("PREDICTION")
 
 # ==============================================================================
 # Page
@@ -54,9 +62,10 @@ st.set_page_config(
 
 )
 
-st.title("📈 Model Prediction")
-
-st.markdown("---")
+page_header(
+    "📈 Model Prediction",
+    "Generate predictions using the production model."
+)
 
 # ==============================================================================
 # Dataset Check
@@ -64,7 +73,7 @@ st.markdown("---")
 
 dataframe = st.session_state.get(
 
-    "uploaded_dataframe"
+    "uploaded_df"
 
 )
 
@@ -292,3 +301,4 @@ if prediction_result is not None:
         mime="text/csv"
 
     )
+    page_footer()

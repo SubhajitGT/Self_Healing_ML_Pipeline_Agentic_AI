@@ -30,9 +30,17 @@ if str(PROJECT_ROOT) not in sys.path:
 # ==============================================================================
 
 from agents.orchestrator import AIOrchestrator
-from utils.session import initialize_session_state
+from utils.session_manager import initialize_session
+from utils.workflow_manager import set_current_stage
+from utils.page_guard import guard_ai
+from utils.ui_components import page_header, page_footer
+from utils.error_handler import show_error
 
-initialize_session_state()
+initialize_session()
+
+guard_ai()
+
+set_current_stage("AI_DIAGNOSIS")
 
 # ==============================================================================
 # Page
@@ -48,9 +56,10 @@ st.set_page_config(
 
 )
 
-st.title("🧠 AI Diagnosis")
-
-st.markdown("---")
+page_header(
+    "🧠 AI Diagnosis",
+    "AI analyses validation, drift and model performance."
+)
 
 # ==============================================================================
 # Check Monitoring Reports
@@ -198,7 +207,7 @@ if ai_report is not None:
 
         ).get(
 
-            "required",
+            "retrain_required",
 
             False
 
@@ -216,33 +225,25 @@ if ai_report is not None:
 
     st.subheader("Root Cause")
 
+    diagnosis = ai_report.get("diagnosis", {})
+
     st.write(
-
-        ai_report.get(
-
-            "root_cause",
-
-            "No root cause identified."
-
-        )
-
+    diagnosis.get(
+        "root_cause",
+        "No root cause identified."
     )
+)
 
     st.markdown("---")
 
     st.subheader("Business Impact")
 
     st.write(
-
-        ai_report.get(
-
-            "business_impact",
-
-            "No business impact available."
-
-        )
-
+    diagnosis.get(
+        "business_impact",
+        "No business impact available."
     )
+)
 
     st.markdown("---")
 
@@ -287,3 +288,4 @@ if ai_report is not None:
         mime="text/plain"
 
     )
+    page_footer()
