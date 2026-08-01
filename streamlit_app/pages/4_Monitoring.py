@@ -104,13 +104,18 @@ if st.button(
         # Generate Reference Dataset
         # ---------------------------------------------------------
 
-        generator = SalesDataGenerator(
+        #generator = SalesDataGenerator(
 
-            rows=len(current_df)
+            #rows=len(current_df)
 
+        #)
+        reference_path = (
+    PROJECT_ROOT
+    / "sample_data"
+    / "sales_normal.xlsx"
         )
 
-        reference_df = generator.generate_dataset()
+        reference_df = pd.read_excel(reference_path)
 
         # ---------------------------------------------------------
         # Drift Detection
